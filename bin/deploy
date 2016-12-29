@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+
+var db = require('../data-access.js');
+var sfdc = require('../sfdc-deploy.js');
+
+function task(){
+  db.getLogins(function(logins){
+    for(var dc in logins){
+      //have to do a funciton call here to preserve the data center ID
+      (function(dc){
+        console.log(dc + ': Deploying...');
+        var thisDc = dc;
+        sfdc.deploy(logins[dc], function(err, times){
+          if(err){
+            console.log('Error:');
+            console.log(err);
+          }
+          db.saveDeployTime(thisDc, times);
+            console.log(thisDc + ': Saved');
+          });
+      }(dc));
+    }
+  });
+}
+task();

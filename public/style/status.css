@@ -1,0 +1,141 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0px;
+  background-color: #d8dde6;
+}
+
+#header {
+  position: relative;
+  width: 100%;
+  height: 70px;
+  background-color: #4f6a92;
+  color: white;
+  font-weight: 200;
+  line-height: 1.25;
+}
+
+h1 {
+  font-weight: normal;
+  margin: 0px;
+}
+
+#title {
+  padding: 15px 10px 15px 40px;
+  text-align: left;
+  width: 75%;
+  float: left;
+}
+
+#help {
+  padding: 15px 40px 15px 10px;
+  text-align: right;
+  width: 15%;
+  float: left;
+}
+#help:hover,
+#help:focus {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.datacenter {
+  background-color: #f4f6f9;
+}
+
+.dcName {
+  padding: 5px 15px 0px 45px;
+  border: 1px solid #d8dde6;
+  font-size: large;
+}
+
+.stats {
+  display:flex;
+  flex-direction: row;
+  flex-flow: row wrap;
+  padding: 5px 30px 5px 35px;
+}
+
+.stat {
+  display:flex;
+  flex-direction:column;
+  padding: 5px;
+  border: 1px solid #d8dde6;
+  margin: 5px;
+  width: 125px;
+  height: 100px;
+  border-radius: 5px;
+}
+
+.statName {
+  height: 25%;
+  text-align: center;
+  line-height: 25px;
+  font-size: 16px;
+}
+
+.statValue {
+  height: 50%;
+  text-align: center;
+  line-height: 50px;
+  font-size: 40px;
+}
+
+.statUnits {
+  height: 25%;
+  text-align: center;
+  line-height: 25px;
+  font-size: 12px;
+}
+
+#loading {
+  width: 100%;
+  padding-top: 100px;
+  text-align: center;
+}
+
+.good {
+  background-color: #028048
+}
+
+.medium {
+  background-color: #ffb75d
+}
+
+.bad {
+  background-color: #c23934
+}
+
+#helpWindow {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0,0,0);
+    background-color: rgba(0,0,0,0.4);
+}
+
+#helpContent {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+}
+
+#close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+#close:hover,
+#close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}

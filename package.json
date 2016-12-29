@@ -1,0 +1,24 @@
+{
+  "name": "sfdc_but_verify",
+  "version": "1.0.0",
+  "description": "Finds the current deploy time for SFDC on various data centers",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "keywords": [
+    "salesforce",
+    "force",
+    "sfdc",
+    "deploy"
+  ],
+  "author": "Scott MacWatters",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "firebase-admin": "^4.0.4",
+    "soap": "^0.18.0"
+  }
+}
