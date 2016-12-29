@@ -16,7 +16,7 @@
   };
 
   module.exports.getRecordAmount = function(timesForDc){
-    var numRecords = Object.keys(timesForDc);
+    var numRecords = Object.keys(timesForDc).length;
     var status = 'good';
     //if less than 5 days
     if(numRecords < (24 * 6 * 5)){
