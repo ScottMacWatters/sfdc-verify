@@ -89,7 +89,6 @@
     var dcDeployRequestRef = db.ref('deploy-request/' + datacenter + '/');
 
     dcDeployRequestRef.orderByChild('asyncProcessId').equalTo(deployRequestId).once('value').then(function(snapshot) {
-      console.log(snapshot.val());
       snapshot.forEach(function(child){
         dcDeployRequestRef.child(child.key).remove();
       });
