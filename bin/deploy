@@ -3,22 +3,54 @@
 var db = require('../data-access.js');
 var sfdc = require('../sfdc-deploy.js');
 
-function task(){
+function beginDeployTask(){
   db.getLogins(function(logins){
     for(var dc in logins){
-      //have to do a function call here to preserve the data center ID
       (function(dc){
         console.log(dc + ': Deploying...');
-        sfdc.deploy(logins[dc], function(err, times){
+        sfdc.beginDeploy(logins[dc], function(err, id){
           if(err){
-            console.log('Error:');
+            console.log("Error:");
             console.log(err);
+            return;
           }
-          db.saveDeployTime(dc, times);
-          console.log(dc + ': Saved');
+          db.saveDeployRequest(dc,id);
+          console.log(dc + ': Request Saved');
+          checkDeployTask();
         });
       }(dc));
     }
   });
 }
-task();
+
+function checkDeployTask(){
+  db.getLogins(function(logins){
+    for(var dc in logins){
+      (function(dc){
+        console.log(dc + ': Looking for outstanding deployments');
+        var outstandingIds = db.getDeployRequests(dc, function(ids){
+          for(var key in ids){
+            (function(id){
+              console.log(dc + '-' + id + ': Checking status...');
+
+              sfdc.checkDeployStatus(logins[dc],id,function(err,times){
+                if(err){
+                  console.log('Error:');
+                  console.log(err);
+                  return;
+                }
+                console.log(dc + '-' + id + ': Clearing request...');
+                db.clearCompletedDeployRequest(dc,id);
+                db.saveDeployTime(dc,times);
+                console.log(dc + '-' + id + ': Saved result.');
+              });
+            }(ids[key].asyncProcessId))
+          }
+        });
+      }(dc));
+    }
+  });
+}
+
+beginDeployTask();
+checkDeployTask();

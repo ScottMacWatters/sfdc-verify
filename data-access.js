@@ -45,8 +45,14 @@
   };
 
   module.exports.saveDeployTime = function(datacenter, deployTimes){
+    var id = deployTimes.deployId;
     var dcDeployTimeRef = db.ref('deploy/' + datacenter + '/');
-    dcDeployTimeRef.push(deployTimes);
+
+    dcDeployTimeRef.orderByChild('deployId').equalTo(id).once('value').then( function(snapshot){
+      if(!snapshot.val()){
+        dcDeployTimeRef.push(deployTimes);
+      }
+    });
   }
 
   module.exports.getDeployTimes = function(callback){
@@ -73,5 +79,28 @@
       callback(dcs);
     });
   };
+
+  module.exports.saveDeployRequest = function(datacenter, deployRequestId){
+    var dcDeployRequestRef = db.ref('deploy-request/' + datacenter + '/');
+    dcDeployRequestRef.push({'asyncProcessId':deployRequestId});
+  }
+
+  module.exports.clearCompletedDeployRequest = function(datacenter, deployRequestId){
+    var dcDeployRequestRef = db.ref('deploy-request/' + datacenter + '/');
+
+    dcDeployRequestRef.orderByChild('asyncProcessId').equalTo(deployRequestId).once('value').then(function(snapshot) {
+      console.log(snapshot.val());
+      snapshot.forEach(function(child){
+        dcDeployRequestRef.child(child.key).remove();
+      });
+    });
+  }
+
+  module.exports.getDeployRequests = function(datacenter, callback){
+    var dcDeployRequestRef = db.ref('deploy-request/' + datacenter + '/');
+    dcDeployRequestRef.once('value').then(function(snapshot){
+      callback(snapshot.val());
+    });
+  }
 
 }());
