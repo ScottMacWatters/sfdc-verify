@@ -52,5 +52,3 @@ function checkDeployTask(){
 
 beginDeployTask();
 checkDeployTask();
-
-db.resetDeployKeys();

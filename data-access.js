@@ -50,33 +50,6 @@
     dcDeployTimeRef.set(deployTimes);
   }
 
-  module.exports.resetDeployKeys = function(){
-    module.exports.getDataCenters(function(dcs){
-      for(var i in dcs){
-        var dc = dcs[i];
-        console.log('Fixing ' + dc + '...');
-        (function(dc){
-          var deployTimeDcRef = db.ref('deploy/' + dc + '/');
-          deployTimeDcRef.once('value').then(function(snapshot){
-            var deployTimes = snapshot.val();
-
-            for(var key in deployTimes){
-              var deployTime = deployTimes[key];
-              var id = deployTime.deployId;
-              if(key !== id){
-                //console.log(key + ' replaced with ' + id);
-                deployTimeDcRef.child(id).set(deployTime);
-                deployTimeDcRef.child(key).remove();
-              }
-            }
-
-          });
-        }(dc));
-      }
-    });
-  }
-
-
   module.exports.getDeployTimes = function(callback){
     var deployTimesRef = db.ref('deploy/');
     deployTimesRef.once('value').then(function(snapshot){

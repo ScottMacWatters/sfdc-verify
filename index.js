@@ -42,8 +42,7 @@ expr.get('/summary/', function(req,res){
         //util.getWeeklyMax(times),
         util.getHourlyMedian(times),
         util.getDailyMedian(times),
-        //util.getWeeklyMedian(times),
-        util.getRecordAmount(times)
+        //util.getWeeklyMedian(times)
       ];
     }
     res.setHeader('Content-Type', 'application/json');
