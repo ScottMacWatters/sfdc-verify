@@ -39,10 +39,9 @@ function checkDeployTask(){
                   console.log(err);
                   return;
                 }
-                console.log(dc + '-' + id + ': Clearing request...');
                 db.clearCompletedDeployRequest(dc,id);
                 db.saveDeployTime(dc,times);
-                console.log(dc + '-' + id + ': Saved result.');
+                console.log(dc + ': Saved result.');
               });
             }(ids[key].asyncProcessId))
           }
