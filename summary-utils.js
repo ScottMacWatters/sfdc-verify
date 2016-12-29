@@ -24,7 +24,7 @@
   }
 
   module.exports.getHourlyAverage = function(timesForDc){
-    return getValueOverTime(timesForDc, "Hour Average", HOUR, getAverage);
+    return getValueOverTime(timesForDc, "Hourly Average", HOUR, getAverage);
   }
 
   module.exports.getHourlyMax = function(timesForDc){
