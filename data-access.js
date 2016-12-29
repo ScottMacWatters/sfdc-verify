@@ -57,10 +57,17 @@
     });
   };
 
+  module.exports.getDeployTimesForDatacenterForDates = function(datacenter, startTime, endTime, callback){
+    var deployDcRef = db.ref('deploy/' + datacenter + '/');
+    deployDcRef.orderByChild('createdDate').startAt(startTime).endAt(endTime).once('value').then(function(snapshot){
+      callback(snapshot.val());
+    });
+  }
+
   module.exports.getDeployTimesForDatacenter = function(datacenter, callback){
     var dcDeployTimesRef = db.ref('deploy/' + datacenter + '/');
     dcDeployTimesRef.once('value').then(function(snapshot){
-      callback(snspshot.val());
+      callback(snapshot.val());
     });
   };
 

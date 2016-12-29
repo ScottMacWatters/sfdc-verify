@@ -50,3 +50,41 @@ expr.get('/summary/', function(req,res){
     req.next();
   });
 });
+
+expr.get('/raw/', function(req,res){
+  var dataCenters;
+  if(req.query.dataCenters){
+    dataCenters = req.query.dataCenters.split(',');
+  }
+
+  //for now, let's just send the last day's worth of data.
+  var now = new Date().getTime();
+  var yesterday = now - 24 * 60 * 60 * 1000;
+
+  db.getDataCenters(function(dcs){
+
+    var output = {};
+    var dcCount = dcs.length;
+    var completeQueries = 0;
+
+    for(var i in dcs){
+      var dc = dcs[i];
+      (function(dc){
+        if(dataCenters && !dataCenters.includes(dc)){
+          completeQueries++;
+          return;
+        }
+        db.getDeployTimesForDatacenterForDates(dc, yesterday, now, function(times){
+          output[dc] = times;
+          completeQueries++;
+          if(completeQueries == dcCount){
+            res.setHeader('Content-Type', 'application/json');
+            res.send(JSON.stringify(output));
+            req.next();
+          }
+        });
+      }(dc));
+    }
+  });
+
+})

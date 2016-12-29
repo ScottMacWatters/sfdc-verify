@@ -6,6 +6,7 @@ function populate(stats){
     var dcName = newDiv('dcName');
     dcName.appendChild(newText(dc));
     var datacenter = newDiv('datacenter');
+    datacenter.id = dc;
     datacenter.appendChild(dcName);
 
     var statsDiv = newDiv('stats');
@@ -27,6 +28,7 @@ function populate(stats){
     output.appendChild(datacenter);
   }
   loading.style.display = 'none';
+  getRaw();
 }
 
 function newDiv(cls){
