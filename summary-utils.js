@@ -15,6 +15,20 @@
     return getStat('Most Recent', value);
   };
 
+  module.exports.getRecordAmount = function(timesForDc){
+    var numRecords = timesForDc.length;
+    var status = 'good';
+    //if less than 5 days
+    if(numRecords < (24 * 6 * 5)){
+      status = 'medium';
+    }
+    //if less than a day
+    if(numRecords < (24 * 6)){
+      status = 'bad';
+    }
+    return getStat('Amount', timesForDc.length, status, 'Deploy');
+  }
+
   module.exports.getDailyAverage = function(timesForDc){
     return getValueOverTime(timesForDc, "Daily Average", DAY, getAverage);
   }
