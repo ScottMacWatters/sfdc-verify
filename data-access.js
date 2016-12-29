@@ -46,17 +46,36 @@
 
   module.exports.saveDeployTime = function(datacenter, deployTimes){
     var id = deployTimes.deployId;
-    var dcDeployTimeRef = db.ref('deploy/' + datacenter + '/');
+    var dcDeployTimeRef = db.ref('deploy/' + datacenter + '/' + id + '/');
+    dcDeployTimeRef.set(deployTimes);
+  }
 
-    dcDeployTimeRef.orderByChild('deployId').equalTo(id).once('value').then( function(snapshot){
-      if(!snapshot.val()){
-        dcDeployTimeRef.push(deployTimes);
-      }
-      else{
-        console.log(datacenter + ": Not saved because duplicate id " + id);
+  module.exports.resetDeployKeys = function(){
+    module.exports.getDataCenters(function(dcs){
+      for(var i in dcs){
+        var dc = dcs[i];
+        console.log('Fixing ' + dc + '...');
+        (function(dc){
+          var deployTimeDcRef = db.ref('deploy/' + dc + '/');
+          deployTimeDcRef.once('value').then(function(snapshot){
+            var deployTimes = snapshot.val();
+
+            for(var key in deployTimes){
+              var deployTime = deployTimes[key];
+              var id = deployTime.deployId;
+              if(key !== id){
+                //console.log(key + ' replaced with ' + id);
+                deployTimeDcRef.child(id).set(deployTime);
+                deployTimeDcRef.child(key).remove();
+              }
+            }
+
+          });
+        }(dc));
       }
     });
   }
+
 
   module.exports.getDeployTimes = function(callback){
     var deployTimesRef = db.ref('deploy/');
