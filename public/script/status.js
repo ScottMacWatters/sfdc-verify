@@ -1,6 +1,11 @@
 function populate(stats){
+
+  console.log('loading...');
+
   var loading = document.getElementById('loading');
   var output = document.getElementById('output');
+  loading.style.display = 'block';
+  output.innerHTML = '';
   for(var dc in stats) {
 
     var dcName = newDiv('dcName');
@@ -79,4 +84,5 @@ window.onload = function(){
   getSummary();
   document.getElementById("help").onclick = openHelpWindow;
   document.getElementById("close").onclick = closeHelpWindow;
+  window.setTimeout(getSummary, 11 * 60 * 1000);
 };
