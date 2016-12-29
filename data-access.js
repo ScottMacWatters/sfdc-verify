@@ -52,6 +52,9 @@
       if(!snapshot.val()){
         dcDeployTimeRef.push(deployTimes);
       }
+      else{
+        console.log(datacenter + ": Not saved because duplicate id " + id);
+      }
     });
   }
 
