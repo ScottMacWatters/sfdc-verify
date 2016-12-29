@@ -26,7 +26,7 @@
     if(numRecords < (24 * 6)){
       status = 'bad';
     }
-    return getStat('Amount', numRecords, status, 'Deploy');
+    return getStat('Deploy Amount', numRecords, status, 'Deploy');
   }
 
   module.exports.getDailyAverage = function(timesForDc){
