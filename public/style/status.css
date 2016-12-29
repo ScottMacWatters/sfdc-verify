@@ -170,3 +170,7 @@ path {
   fill: none;
   stroke: #000;
 }
+
+.label {
+  font-size: 12px;
+}
