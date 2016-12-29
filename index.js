@@ -36,13 +36,13 @@ expr.get('/summary/', function(req,res){
         util.getRecentTime(times),
         util.getHourlyAverage(times),
         util.getDailyAverage(times),
-        util.getWeeklyAverage(times),
+        //util.getWeeklyAverage(times),
         util.getHourlyMax(times),
         util.getDailyMax(times),
-        util.getWeeklyMax(times),
+        //util.getWeeklyMax(times),
         util.getHourlyMedian(times),
-        util.getDailyMedian(times),
-        util.getWeeklyMedian(times)
+        util.getDailyMedian(times)//,
+        //util.getWeeklyMedian(times)
       ];
     }
     res.setHeader('Content-Type', 'application/json');
