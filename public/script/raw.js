@@ -44,6 +44,7 @@ function drawgraph(dc, data){
 
   var x_dim_accessor = function(d){return d.createdDate};
   var y_dim_accessor = function(d){return d.queuedSeconds};
+  var y_scale = 'Seconds';
 
   var x_range;
   var y_range;
@@ -57,9 +58,16 @@ function drawgraph(dc, data){
   ];
 
   y_range = [
-    d3.min(data, y_dim_accessor),
+    0,
     d3.max(data, y_dim_accessor)
   ];
+
+  //if number of seconds is greater than 5 minutes
+  if(y_range[1] > 300){
+    y_range[1] = Math.ceil(y_range[1]/60);
+    y_dim_accessor = function(d){return Math.round(d.queuedSeconds/60)};
+    y_scale = 'Minutes';
+  }
 
 
   render(data);
@@ -113,7 +121,7 @@ function drawgraph(dc, data){
       .attr("y", -12)
       .attr("dy", "0px")
       .style("text-anchor", "end")
-      .text("Seconds to Deploy");
+      .text(y_scale + "to Deploy");
 
 
     // Add the line by appending an svg:path element with the data line we created above
