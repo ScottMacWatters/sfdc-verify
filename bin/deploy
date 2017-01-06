@@ -34,7 +34,7 @@ function checkDeployTask(){
           for(var key in ids){
             (function(id){
               console.log(dc + '-' + id + ': Checking status...');
-              sfdc.checkDeployStatus(logins[dc],id,function(err,times,sfdc_query_timeout){
+              sfdc.checkDeployStatus(logins[dc],id,function(err,times){
                 if(err){
                   console.log('Error:');
                   console.log(err);
@@ -42,8 +42,8 @@ function checkDeployTask(){
                 }
                 db.clearCompletedDeployRequest(dc,id);
                 db.saveDeployTime(dc,times);
-                console.log(dc + ': Saved result if necessary.');
-              });
+                console.log(dc + ': Saved result ' + times.queuedSeconds);
+              },sfdc_query_timeout);
             }(ids[key].asyncProcessId))
           }
         });
