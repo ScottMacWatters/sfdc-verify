@@ -161,7 +161,7 @@
 
 
     //create client to logiun via Enterprise SOAP API
-    soap.createClient(enterprise_wsdl, function(err, ent_client){
+    soap.createClient(enterprise_wsdl, function(err, ent_client, timeout){
       if(err){
         callback(err.body);
         return;
@@ -191,7 +191,7 @@
       else {
         setTimeout(function(){
           getSfdcStatusResponse(statusFunction, options, callback);
-        }, 5000);
+        }, timeout ? timeout : 10000);
       }
     });
   }
