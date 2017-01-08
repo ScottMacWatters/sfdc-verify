@@ -4,7 +4,7 @@
   var fs = require('fs');
   var enterprise_wsdl = './sfdc_enterprise_wsdl.xml';
   var metadata_wsdl = './sfdc_metadata_wsdl.xml';
-  var deployable = fs.readFileSync('./SimpleClass.zip', 'base64');
+  var deployable = fs.readFileSync('./simpleClasses.zip', 'base64');
   var deployOptions = {
     zipFile: deployable,
     DeployOptions : {
