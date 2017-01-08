@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var db = require('../data-access.js');
-var sfdc = require('../sfdc-deploy.js');
+var sfdc = require('../sfdc/metadata.js');
 
 var sfdc_query_timeout = process.env.sfdc_query_timeout;
 
