@@ -26,7 +26,7 @@
     });
   }
 
-  module.exports.checkDeployStatus = function(creds, id, callback){
+  module.exports.checkDeployStatus = function(creds, id, callback, timeout){
     getMetadataClient(creds, function(err, met_client){
       if(err){
         callback(err);
@@ -46,7 +46,7 @@
         callback(null, getTimingFromStatus(deployStatus));
 
 
-      });
+      }, timeout);
     });
 
   }

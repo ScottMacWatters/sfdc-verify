@@ -28,6 +28,7 @@
   var db = fb_admin.database();
 
   var deployRefName = (testingNamespace ? testingNamespace : '') + 'deploy';
+  var testRefName = (testingNamespace ? testingNamespace : '') + 'test';
 
   //Note: None of these things are encrypted in the DB.
   //These are essentially throw away orgs with no production
@@ -108,5 +109,55 @@
       callback(snapshot.val());
     });
   }
+
+  module.exports.saveTestRequest = function(datacenter, testRequestId){
+    var dcTestRequestRef = db.ref(testRefName + '-request/' + datacenter + '/');
+    dcTestRequestRef.push({'asyncApexJobId':testRequestId});
+  }
+
+  module.exports.clearCompletedTestRequest = function(datacenter, testRequestId){
+    var dcTestRequestRef = db.ref(testRefName + '-request/' + datacenter + '/');
+
+    dcTestRequestRef.orderByChild('asyncApexJobId').equalTo(testRequestId).once('value').then(function(snapshot){
+      snapshot.forEach(function(child){
+        dcTestRequestRef.child(child.key).remove();
+      });
+    });
+  }
+
+  module.exports.getTestRequests = function(datacenter, callback){
+    var dcTestRequestRef = db.ref(testRefName + '-request/' + datacenter + '/');
+    dcTestRequestRef.once('value').then(function(snapshot){
+      callback(snapshot.val());
+    });
+  }
+
+  module.exports.saveTestTime = function(datacenter, testTimes){
+    var id = testTimes.deployId;
+    var dcTestRequestRef = db.ref(testRefName + '/' + datacenter + '/' + id + '/');
+    dcTestRequestRef.set(testTimes);
+  }
+
+  module.exports.getTestTimes = function(callback){
+    var testRequestRef = db.ref(testRefName + '/');
+    deployTimesRef.once('value').then(function(snapshot){
+      callback(snapshot.val());
+    });
+  };
+
+  module.exports.getTestTimesForDatacenterForDates = function(datacenter, startTime, endTime, callback){
+    var testRequestRef = db.ref(testRefName + '/' + datacenter + '/');
+    testRequestRef.orderByChild('createdDate').startAt(startTime).endAt(endTime).once('value').then(function(snapshot){
+      callback(snapshot.val());
+    });
+  }
+
+  module.exports.getTestTimesForDatacenter = function(datacenter, callback){
+    var testRequestRef = db.ref(testRefName + '/' + datacenter + '/');
+    testRequestRef.once('value').then(function(snapshot){
+      callback(snapshot.val());
+    });
+  };
+
 
 }());

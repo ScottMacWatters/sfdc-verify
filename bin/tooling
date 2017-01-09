@@ -1,0 +1,58 @@
+#!/usr/bin/env node
+
+
+var db = require('../data-access.js');
+var sfdc = require('../sfdc/tooling.js');
+var sfdc_query_timeout = process.env.sfdc_query_timeout;
+
+function beginTestTask(){
+  db.getLogins(function(logins){
+    for(var dc in logins){
+      (function(dc){
+        console.log(dc + ': Beginning Test run...');
+        sfdc.beginRunTests(logins[dc], function(err, id){
+          if(err){
+            console.log("Error:");
+            console.log(err);
+            return;
+          }
+          console.log(id);
+          db.saveTestRequest(dc,id);
+          checkTestTask();
+        });
+      }(dc));
+    }
+  });
+}
+
+
+function checkTestTask(){
+  db.getLogins(function(logins){
+    for(var dc in logins){
+      (function(dc){
+        console.log(dc + ': Looking for outstanding test results...');
+        var outstandingIds = db.getTestRequests(dc, function(ids){
+          for(var key in ids){
+            (function(id){
+              console.log(dc + '-' + id + ': Checking status...');
+              sfdc.checkTestTaskResult(logins[dc],id,function(err,times){
+                if(err){
+                  console.log('Error:');
+                  console.log(err);
+                  return;
+                }
+                db.clearCompletedTestRequest(dc,id);
+                db.saveTestTime(dc,times);
+                console.log(dc + ': Saved result ' + times.queuedSeconds);
+              },sfdc_query_timeout);
+            }(ids[key].asyncApexJobId))
+          }
+        });
+      }(dc));
+    }
+  });
+}
+
+
+checkTestTask();
+beginTestTask();
