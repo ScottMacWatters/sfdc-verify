@@ -28,10 +28,12 @@ expr.get('/summary/', function(req,res){
     var output = {};
 
     for(var dc in data){
+      console.log(dc);
       if(dataCenters && !dataCenters.includes(dc)){
         continue;
       }
       var times = data[dc];
+
       output[dc] = [
         util.getRecentTime(times),
         util.getHourlyAverage(times),
