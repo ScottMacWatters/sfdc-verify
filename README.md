@@ -1,8 +1,12 @@
 # sfdc-verify
 
-[View it live](https://sfdc-verify.heroku.com).
+[View it live on Heroku](https://sfdc-verify.heroku.com).
 
 Salesforce's [Trust website](https://trust.salesforce.com/en/) can be used to track performance of real-time actions on the Saleforce.com platform. However, many developers and customers rely on Asynchronous processes to work within the Salesforce platform. This tool can be used to view and monitor the performance of some Salesforce Asynchronous processes over time. 
+
+# Support for more Data Centers
+
+I need your help! Do you have a development organization that you are no longer using on a data center not covered here? If so, I'd love to start tracking it! Email me the username, password and security token and I'll add it to the database and start monitoring it's performance.
 
 # Deploy
 
