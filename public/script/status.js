@@ -15,19 +15,29 @@ function populate(stats){
     datacenter.appendChild(dcName);
 
     var statsDiv = newDiv('stats');
-    for(var statIndex in stats[dc]){
-      var stat = stats[dc][statIndex];
-      var statDiv = newDiv('stat ' + stat.status);
-      var statName = newDiv('statName');
-      statName.appendChild(newText(stat.name));
-      statDiv.appendChild(statName);
-      var statValue = newDiv('statValue');
-      statValue.appendChild(newText(stat.value));
-      statDiv.appendChild(statValue);
-      var statUnits = newDiv('statUnits');
-      statUnits.appendChild(newText(stat.units));
-      statDiv.appendChild(statUnits);
-      statsDiv.appendChild(statDiv);
+    for(var statType in stats[dc]){
+      var statSectionDiv = newDiv('statSection');
+      var statSectionNameDiv = newDiv('statSectionName');
+      var statSectionNameText = newText(statType);
+      var statSectionContentsDiv = newDiv('statSectionContents');
+      statSectionNameDiv.appendChild(statSectionNameText);
+      statSectionDiv.appendChild(statSectionNameDiv);
+      statSectionDiv.appendChild(statSectionContentsDiv);
+      for(var statIndex in stats[dc][statType]) {
+        var stat = stats[dc][statType][statIndex];
+        var statDiv = newDiv('stat ' + stat.status);
+        var statName = newDiv('statName');
+        statName.appendChild(newText(stat.name));
+        statDiv.appendChild(statName);
+        var statValue = newDiv('statValue');
+        statValue.appendChild(newText(stat.value));
+        statDiv.appendChild(statValue);
+        var statUnits = newDiv('statUnits');
+        statUnits.appendChild(newText(stat.units));
+        statDiv.appendChild(statUnits);
+        statSectionContentsDiv.appendChild(statDiv);
+      }
+      statsDiv.appendChild(statSectionDiv);
     }
     datacenter.appendChild(statsDiv);
     output.appendChild(datacenter);

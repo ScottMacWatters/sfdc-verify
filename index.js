@@ -27,14 +27,25 @@ expr.get('/summary/', function(req,res){
   db.getDeployTimes(function(data){
     var output = {};
 
+    var T = util.TIME;
+    var O = util.OP;
+    var M = util.METRIC;
+
     for(var dc in data){
-      console.log(dc);
       if(dataCenters && !dataCenters.includes(dc)){
         continue;
       }
       var times = data[dc];
 
-      output[dc] = [
+      output[dc] = {};
+      output[dc]['Deploy Queue Time'] = [
+        util.summarize(times,'Recent',T.HOUR,O.RECENT,M.QUEUED),
+        util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.QUEUED),
+        util.summarize(times,'Hourly Average',T.HOUR,O.AVG,M.QUEUED),
+        util.summarize(times,'Daily Max',T.DAY,O.MAX,M.QUEUED),
+        util.summarize(times,'Daily Median',T.DAY,O.MED,M.QUEUED),
+        util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.QUEUED)
+        /*
         util.getRecentTime(times),
         util.getHourlyAverage(times),
         util.getDailyAverage(times),
@@ -44,12 +55,36 @@ expr.get('/summary/', function(req,res){
         util.getWeeklyMax(times),
         util.getHourlyMedian(times),
         util.getDailyMedian(times),
-        util.getWeeklyMedian(times)
+        util.getWeeklyMedian(times)*/
       ];
     }
-    res.setHeader('Content-Type', 'application/json');
-    res.send(JSON.stringify(output));
-    req.next();
+    db.getTestTimes(function(data){
+      for(dc in data){
+        if(dataCenters && !dataCenters.includes(dc)){
+          continue;
+        }
+        if(!output[dc]){
+          output[dc] = {};
+        }
+        var times = data[dc];
+
+        output[dc]['Async Test Execution Time'] = [
+            util.summarize(times,'Recent',T.HOUR,O.RECENT,M.EXECUTION),
+            util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.EXECUTION),
+            util.summarize(times,'Hourly Average',T.HOUR,O.AVG,M.EXECUTION),
+            util.summarize(times,'Daily Max',T.DAY,O.MAX,M.EXECUTION),
+            util.summarize(times,'Daily Median',T.DAY,O.MED,M.EXECUTION),
+            util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.EXECUTION)
+        ]
+
+      }
+
+
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(output));
+      req.next();
+    });
+
   });
 });
 
@@ -59,7 +94,6 @@ expr.get('/raw/', function(req,res){
     dataCenters = req.query.dataCenters.split(',');
   }
 
-  //for now, let's just send the last day's worth of data.
   var now = new Date().getTime();
   var yesterday = now - 24 * 60 * 60 * 1000;
 
@@ -67,26 +101,42 @@ expr.get('/raw/', function(req,res){
 
     var output = {};
     var dcCount = dcs.length;
+    var totalQueries = dcs.length * 2; //deploy and test.
     var completeQueries = 0;
 
     for(var i in dcs){
       var dc = dcs[i];
       (function(dc){
         if(dataCenters && !dataCenters.includes(dc)){
-          completeQueries++;
+          completeQueries += 2;
           return;
         }
+
+        output[dc] = {};
+
         db.getDeployTimesForDatacenterForDates(dc, yesterday, now, function(times){
-          output[dc] = times;
+          output[dc]['Deploy Queue'] = times;
           completeQueries++;
-          if(completeQueries == dcCount){
-            res.setHeader('Content-Type', 'application/json');
-            res.send(JSON.stringify(output));
-            req.next();
-          }
+          checkCompleteAndSendResult(output,completeQueries, totalQueries);
         });
+
+        db.getTestTimesForDatacenterForDates(dc, yesterday, now, function(times){
+          output[dc]['Apex Test Execution'] = times;
+          completeQueries++;
+          checkCompleteAndSendResult(output,completeQueries,totalQueries);
+        })
+
       }(dc));
     }
   });
+
+  function checkCompleteAndSendResult(output, completeQueries, totalQueries){
+    if(completeQueries == totalQueries){
+      res.setHeader('Content-Type', 'application/json');
+      res.send(JSON.stringify(output));
+      req.next();
+    }
+    return;
+  }
 
 })

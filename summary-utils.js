@@ -1,103 +1,113 @@
 (function(){
 
-    var DAY = 1000 * 60 * 60 * 24;
-    var WEEK = 1000 * 60 * 60 * 24 * 7;
-    var HOUR = 1000 * 60 * 60;
-
-  module.exports.getRecentTime = function(timesForDc){
-    var recentTime;
-    for(var key in timesForDc){
-      if(!recentTime || (recentTime.createdDate < timesForDc[key].createdDate)){
-        recentTime = timesForDc[key];
-      }
-    }
-    var value = recentTime.queuedSeconds;
-    return getStat('Most Recent', value);
+  var DAY = 1000 * 60 * 60 * 24;
+  var WEEK = 1000 * 60 * 60 * 24 * 7;
+  var HOUR = 1000 * 60 * 60;
+  module.exports.TIME = {
+    HOUR: HOUR,
+    DAY: DAY,
+    WEEK: WEEK
   };
 
-  module.exports.getDailyAverage = function(timesForDc){
-    return getValueOverTime(timesForDc, "Daily Average", DAY, getAverage);
+  var OPERATION_MAP = {
+    AVG: getAverage,
+    MAX: getMax,
+    RECENT: getRecent,
+    MED: getMedian
+  };
+  module.exports.OP = {
+    AVG: 'AVG',
+    MAX: 'MAX',
+    RECENT: 'RECENT',
+    MED: 'MED'
+  };
+
+  var METRIC_STATUS_MAP = {
+    queuedSeconds: {
+      good: 10,
+      med: 120
+    },
+    executionSeconds: {
+      good: 20,
+      med: 180
+    }
+  }
+  module.exports.METRIC = {
+    QUEUED: 'queuedSeconds',
+    EXECUTION: 'executionSeconds'
+  };
+
+  module.exports.summarize = function(timesForDc, name, timePeriod, operation, metric){
+    return getValueOverTime(timesForDc, name, timePeriod, OPERATION_MAP[operation], metric);
   }
 
-  module.exports.getWeeklyAverage = function(timesForDc){
-    return getValueOverTime(timesForDc, "Weekly Average", WEEK, getAverage);
-  }
-
-  module.exports.getHourlyAverage = function(timesForDc){
-    return getValueOverTime(timesForDc, "Hourly Average", HOUR, getAverage);
-  }
-
-  module.exports.getHourlyMax = function(timesForDc){
-    return getValueOverTime(timesForDc, "Hourly Max", HOUR, getMax);
-  }
-
-  module.exports.getWeeklyMax = function(timesForDc){
-    return getValueOverTime(timesForDc, "Weekly Max", WEEK, getMax);
-  }
-
-  module.exports.getDailyMax = function(timesForDc){
-    return getValueOverTime(timesForDc, "Daily Max", DAY, getMax);
-  }
-
-  module.exports.getHourlyMedian = function(timesForDc){
-    return getValueOverTime(timesForDc, "Hourly Median", HOUR, getMedian);
-  }
-
-  module.exports.getWeeklyMedian = function(timesForDc){
-    return getValueOverTime(timesForDc, "Weekly Median", WEEK, getMedian);
-  }
-
-  module.exports.getDailyMedian = function(timesForDc){
-    return getValueOverTime(timesForDc, "Daily Median", DAY, getMedian);
-  }
-
-  function getValueOverTime(timesForDc, name, timePeriod, operation){
+  function getValueOverTime(timesForDc, name, timePeriod, operation, metric){
     var now = new Date();
     var previous = new Date(now.getTime() - timePeriod);
-    return operation(timesForDc, previous, now, name);
+    return operation(timesForDc, previous, now, name, metric);
   }
 
-  function getMax(timesForDc, start, end, name){
+  function getRecent(timesforDc, start, end, name, metric){
+    var relevantTimes = getTimesBetweenDates(timesforDc, start, end);
+    var recentTime;
+    for(var key in relevantTimes){
+      if(!recentTime || (recentTime.createdDate < relevantTimes[key].createdDate)){
+        recentTime = relevantTimes[key];
+      }
+    }
+    var value = recentTime[metric];
+    return getStat(name, value, metric);
+  }
+
+  function getMax(timesForDc, start, end, name, metric){
     var relevantTimes = getTimesBetweenDates(timesForDc, start, end);
 
     var maxTime = 0;
 
     for(var i in relevantTimes){
-      var queuedSeconds = relevantTimes[i].queuedSeconds;
-      if(maxTime < queuedSeconds)[
-        maxTime = queuedSeconds
-      ]
+      var value = relevantTimes[i][metric];
+      if(maxTime < value){
+        maxTime = value;
+      }
     }
 
-    return getStat(name, maxTime);
+    return getStat(name, maxTime, metric);
   }
 
-  function getMedian(timesForDc, start, end, name){
+  function getMedian(timesForDc, start, end, name, metric){
     var relevantTimes = getTimesBetweenDates(timesForDc, start, end);
 
     relevantTimes.sort(function(a, b){
-      return a.queuedSeconds - b.queuedSeconds;
+      return a[metric] - b[metric];
     });
 
-    var median = relevantTimes[Math.floor(relevantTimes.length/2)];
+    var median;
+    if(relevantTimes.length / 2 === 1){
+      median = relevantTimes[Math.floor(relevantTimes.length/2)][metric];
+    }
+    else {
+      var a = relevantTimes[Math.floor(relevantTimes.length/2)][metric];
+      var b = relevantTimes[Math.ceil(relevantTimes.length/2)][metric];
+      median = (a + b)/2;
+    }
 
-    return getStat(name, median.queuedSeconds);
+    return getStat(name, median, metric);
   }
 
-
-  function getAverage(timesForDc, start, end, name){
+  function getAverage(timesForDc, start, end, name, metric){
     var relevantTimes = getTimesBetweenDates(timesForDc, start, end);
 
     var sum = 0;
 
     for(var i in relevantTimes){
-      sum += relevantTimes[i].queuedSeconds;
+      sum += relevantTimes[i][metric];
     }
 
-    return getStat(name, Math.floor(sum/relevantTimes.length));
+    return getStat(name, Math.floor(sum/relevantTimes.length), metric);
   }
 
   function getTimesBetweenDates(timesForDc, start, end){
+
     var first = start.getTime();
     var second = end.getTime();
     var output = [];
@@ -110,7 +120,7 @@
     return output;
   }
 
-  function getStat(name, value, status, units){
+  function getStat(name, value, metric, status, units){
     var output = {};
     output.name = name;
     output.value = value;
@@ -118,7 +128,7 @@
       output.status = status;
     }
     else{
-      output.status = getStatusForValue(value);
+      output.status = getStatusForValue(value, metric);
     }
     if(units){
       output.units = units;
@@ -143,11 +153,11 @@
     return output;
   };
 
-  function getStatusForValue(value){
-    if(value < 10){
+  function getStatusForValue(value, metric){
+    if(value < METRIC_STATUS_MAP[metric].good){
       return 'good';
     }
-    else if(value < 120){
+    else if(value < METRIC_STATUS_MAP[metric].med){
       return 'medium';
     }
     else {

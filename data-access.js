@@ -140,7 +140,7 @@
 
   module.exports.getTestTimes = function(callback){
     var testRequestRef = db.ref(testRefName + '/');
-    deployTimesRef.once('value').then(function(snapshot){
+    testRequestRef.once('value').then(function(snapshot){
       callback(snapshot.val());
     });
   };

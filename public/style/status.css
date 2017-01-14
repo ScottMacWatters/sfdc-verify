@@ -39,20 +39,42 @@ h1 {
 }
 
 .datacenter {
+  margin: 10px;
   background-color: #f4f6f9;
+  border-radius: 10px;
 }
 
 .dcName {
   padding: 5px 15px 0px 45px;
-  border: 1px solid #d8dde6;
+  border: 1px solid #d7dfe6;
   font-size: large;
 }
 
 .stats {
   display:flex;
   flex-direction: row;
-  flex-flow: row wrap;
-  padding: 5px 30px 5px 35px;
+  flex-flow: nowrap;
+  padding: 5px 15px 5px 20px;
+}
+
+.statSection{
+  background-color: #dbe6ed;
+  border-radius: 10px;
+  margin: 5px;
+}
+
+.statSectionName{
+  font-size: large;
+  padding: 5px 10px 5px 10px;
+  margin-left: 5px;
+  text-align: left;
+}
+
+.statSectionContents{
+    display:flex;
+    flex-direction: row;
+    flex-flow: row wrap;
+    padding: 0px 5px 0px 5px;
 }
 
 .stat {
@@ -145,7 +167,7 @@ svg {
 }
 
 path {
-  stroke: steelblue;
+  /*stroke: steelblue; */
   stroke-width: 1;
   fill: none;
 }
@@ -173,4 +195,13 @@ path {
 
 .label {
   font-size: 12px;
+}
+
+.legend {
+  font-size: 12px;
+}
+
+.legend-color {
+  width: 10px;
+  height: 10px;
 }
