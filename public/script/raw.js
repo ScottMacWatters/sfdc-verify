@@ -50,6 +50,9 @@ function getArraysFromRaw(rawJson){
       }
     }
     console.log(Object.keys(output[dc]).length);
+    if(Object.keys(output[dc]).length === 0){
+      outbou[dc] = undefined;
+    }
   }
 
   return output;
@@ -59,7 +62,6 @@ function getArraysFromRaw(rawJson){
 function addGraphs(rawJson){
   var dcData = getArraysFromRaw(rawJson);
   for(var dc in dcData){
-    console.log(dcData[dc]);
     drawgraph(dc, dcData[dc]); //todo: generalize
   }
 }
