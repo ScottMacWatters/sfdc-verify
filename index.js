@@ -24,6 +24,7 @@ expr.get('/summary/', function(req,res){
     dataCenters = req.query.dataCenters.split(',');
   }
 
+  //todo: Refactor to query by previous times rather than querying all and processing
   db.getDeployTimes(function(data){
     var output = {};
 
@@ -50,17 +51,6 @@ expr.get('/summary/', function(req,res){
         util.summarize(times,'Daily Max',T.DAY,O.MAX,M.QUEUED),
         util.summarize(times,'Daily Median',T.DAY,O.MED,M.QUEUED),
         util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.QUEUED)
-        /*
-        util.getRecentTime(times),
-        util.getHourlyAverage(times),
-        util.getDailyAverage(times),
-        util.getWeeklyAverage(times),
-        util.getHourlyMax(times),
-        util.getDailyMax(times),
-        util.getWeeklyMax(times),
-        util.getHourlyMedian(times),
-        util.getDailyMedian(times),
-        util.getWeeklyMedian(times)*/
       ];
     }
     db.getTestTimes(function(data){
@@ -88,7 +78,6 @@ expr.get('/summary/', function(req,res){
             util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.EXECUTION)
         ];
 
-
       }
 
       for(var dc in output){
@@ -111,9 +100,19 @@ expr.get('/raw/', function(req,res){
   if(req.query.dataCenters){
     dataCenters = req.query.dataCenters.split(',');
   }
+  var timeperiod;
+  if(req.query.timePeriod){
+    timePeriod = Number(req.query.timePeriod);
+  }
+  else {
+    //If no time period specified, use previous 24 hours.
+    timePeriod = 24;
+  }
+
+  timePeriod = timePeriod * 1000 * 60 * 60; //convert to MS
 
   var now = new Date().getTime();
-  var yesterday = now - 24 * 60 * 60 * 1000;
+  var prev = now - timePeriod;
 
   db.getDataCenters(function(dcs){
 
@@ -132,13 +131,13 @@ expr.get('/raw/', function(req,res){
 
         output[dc] = {};
 
-        db.getDeployTimesForDatacenterForDates(dc, yesterday, now, function(times){
+        db.getDeployTimesForDatacenterForDates(dc, prev, now, function(times){
           output[dc]['Deploy Queue'] = times;
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries, totalQueries);
         });
 
-        db.getTestTimesForDatacenterForDates(dc, yesterday, now, function(times){
+        db.getTestTimesForDatacenterForDates(dc, prev, now, function(times){
           output[dc]['Apex Test Execution'] = times;
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries,totalQueries);
