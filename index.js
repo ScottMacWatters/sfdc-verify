@@ -92,7 +92,9 @@ expr.get('/summary/', function(req,res){
       }
 
       for(var dc in output){
-        console.log(Object.keys(output[dc]).length);
+        if(Object.keys(output[dc]).length === 0) {
+          output[dc] = undefined;
+        }
       }
 
 
