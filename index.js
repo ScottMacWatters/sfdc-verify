@@ -88,9 +88,10 @@ expr.get('/summary/', function(req,res){
             util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.EXECUTION)
         ]
 
+
+        console.log(Object.keys(output[dc].length));
       }
 
-      console.log(Object.keys(output[dc].length));
 
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(output));
