@@ -37,7 +37,10 @@ expr.get('/summary/', function(req,res){
       }
       var times = data[dc];
 
-      console.log(Object.keys(times).length);
+      //If less than 20 data points, skip this datacenter until it gets more data.
+      if(Object.keys(times).length < 20){
+        continue;
+      }
 
       output[dc] = {};
       output[dc]['Deploy Queue Time'] = [
