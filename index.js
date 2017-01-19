@@ -68,6 +68,12 @@ expr.get('/summary/', function(req,res){
         if(dataCenters && !dataCenters.includes(dc)){
           continue;
         }
+
+        //If less than 20 data points, skip this datacenter until it gets more data.
+        if(Object.keys(times).length < 20){
+          continue;
+        }
+
         if(!output[dc]){
           output[dc] = {};
         }
