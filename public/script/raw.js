@@ -24,8 +24,22 @@ function getRaw(){  var request = new XMLHttpRequest();
     var result = JSON.parse(responseBody);
     addGraphs(result);
   }
-  request.open('GET','/raw?dataCenters=' + getQueryStringValue("dcs"), true);
+  request.open('GET', getUrl(), true);
   request.send();
+}
+
+function getUrl(){
+  var ret = '/raw?dataCenters=';
+  ret+= getQueryStringValue("dcs");
+  var timePeriod = getQueryStringValue("timePeriod");
+  if(timePeriod) {
+    ret+= "&timePeriod=" + timePeriod;
+  }
+  var endTime = getQueryStringValue("endDateTime");
+  if(endTime){
+    ret+= "&endDateTime=" + endTime;
+  }
+  return ret;
 }
 
 //Extract data from service call into usable D3 data.

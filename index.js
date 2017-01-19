@@ -110,8 +110,8 @@ expr.get('/raw/', function(req,res){
 
   //Starting now if nothing specified
   var endDate = new Date().getTime();
-  if(req.query.endDate){
-    endDate = Number(req.query.endDate);
+  if(req.query.endDateTime){
+    endDate = Number(req.query.endDateTime);
   }
 
   timePeriod = timePeriod * 1000 * 60 * 60; //convert to MS
