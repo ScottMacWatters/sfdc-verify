@@ -37,7 +37,7 @@ expr.get('/summary/', function(req,res){
       }
       var times = data[dc];
 
-      console.log(times.length);
+      console.log(Object.keys(times).length);
 
       output[dc] = {};
       output[dc]['Deploy Queue Time'] = [
