@@ -97,22 +97,26 @@ expr.get('/summary/', function(req,res){
 
 expr.get('/raw/', function(req,res){
   var dataCenters;
+
   if(req.query.dataCenters){
     dataCenters = req.query.dataCenters.split(',');
   }
-  var timeperiod;
+
+  //prevous 24 hours if nothing specified
+  var timePeriod = 24;
   if(req.query.timePeriod){
     timePeriod = Number(req.query.timePeriod);
   }
-  else {
-    //If no time period specified, use previous 24 hours.
-    timePeriod = 24;
+
+  //Starting now if nothing specified
+  var endDate = new Date().getTime();
+  if(req.query.endDate){
+    endDate = Number(req.query.endDate);
   }
 
   timePeriod = timePeriod * 1000 * 60 * 60; //convert to MS
 
-  var now = new Date().getTime();
-  var prev = now - timePeriod;
+  var prev = endDate - timePeriod;
 
   db.getDataCenters(function(dcs){
 
@@ -131,13 +135,13 @@ expr.get('/raw/', function(req,res){
 
         output[dc] = {};
 
-        db.getDeployTimesForDatacenterForDates(dc, prev, now, function(times){
+        db.getDeployTimesForDatacenterForDates(dc, prev, endDate, function(times){
           output[dc]['Deploy Queue'] = times;
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries, totalQueries);
         });
 
-        db.getTestTimesForDatacenterForDates(dc, prev, now, function(times){
+        db.getTestTimesForDatacenterForDates(dc, prev, endDate, function(times){
           output[dc]['Apex Test Execution'] = times;
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries,totalQueries);
