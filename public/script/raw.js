@@ -55,6 +55,7 @@ function getArraysFromRaw(rawJson){
 function addGraphs(rawJson){
   var dcData = getArraysFromRaw(rawJson);
   for(var dc in dcData){
+    console.log(dcData[dc]);
     drawgraph(dc, dcData[dc]); //todo: generalize
   }
 }
