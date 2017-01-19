@@ -88,7 +88,11 @@ expr.get('/summary/', function(req,res){
             util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.EXECUTION)
         ];
 
-        
+
+      }
+
+      for(var dc in output){
+        console.log(Object.keys(output[dc]).length);
       }
 
 

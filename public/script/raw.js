@@ -51,7 +51,7 @@ function getArraysFromRaw(rawJson){
     }
     console.log(Object.keys(output[dc]).length);
     if(Object.keys(output[dc]).length === 0){
-      outbou[dc] = undefined;
+      output[dc] = undefined;
     }
   }
 
