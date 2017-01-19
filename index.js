@@ -90,6 +90,7 @@ expr.get('/summary/', function(req,res){
 
       }
 
+      console.log(Object.keys(output[dc].length));
 
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(output));

@@ -45,9 +45,13 @@ function getArraysFromRaw(rawJson){
       arr.sort(function(a,b){
         return a.createdDate - b.createdDate;
       });
-      output[dc][type] = arr;
+      if(arr.length >= 20) {
+        output[dc][type] = arr;
+      }
     }
+    console.log(Object.keys(output[dc]).length);
   }
+
   return output;
 }
 
