@@ -126,13 +126,17 @@ expr.get('/raw/', function(req,res){
         output[dc] = {};
 
         db.getDeployTimesForDatacenterForDates(dc, yesterday, now, function(times){
-          output[dc]['Deploy Queue'] = times;
+          if(Object.keys(times).length >= 20) {
+            output[dc]['Deploy Queue'] = times;
+          }
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries, totalQueries);
         });
 
         db.getTestTimesForDatacenterForDates(dc, yesterday, now, function(times){
-          output[dc]['Apex Test Execution'] = times;
+          if(Object.keys(times).length >= 20) {
+            output[dc]['Apex Test Execution'] = times;
+          }
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries,totalQueries);
         })
