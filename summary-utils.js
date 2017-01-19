@@ -139,11 +139,11 @@
 
     if(output.units === 'Second' && output.value >= 60){
       output.units = 'Minute';
-      output.value = Math.floor(output.value/60);
+      output.value = Math.round(output.value/60);
     }
     if(output.units=== 'Minute' && output.value >= 60){
       output.units = 'Hour';
-      output.value = Math.floor(output.value/60);
+      output.value = Math.round(output.value/60);
     }
 
     if(output.value != 1){
