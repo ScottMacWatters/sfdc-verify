@@ -69,15 +69,15 @@ expr.get('/summary/', function(req,res){
           continue;
         }
 
-        //If less than 20 data points, skip this datacenter until it gets more data.
-        if(Object.keys(times).length < 20){
-          continue;
-        }
-
         if(!output[dc]){
           output[dc] = {};
         }
         var times = data[dc];
+
+        //If less than 20 data points, skip this datacenter until it gets more data.
+        if(Object.keys(times).length < 20){
+          continue;
+        }
 
         output[dc]['Async Test Execution Time'] = [
             util.summarize(times,'Recent',T.HOUR,O.RECENT,M.EXECUTION),
