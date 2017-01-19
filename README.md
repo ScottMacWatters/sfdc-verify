@@ -2,7 +2,7 @@
 
 [View it live on Heroku](https://sfdc-verify.heroku.com).
 
-Salesforce's [Trust website](https://trust.salesforce.com/en/) can be used to track performance of real-time actions on the Saleforce.com platform. However, many developers and customers rely on Asynchronous processes to work within the Salesforce platform. This tool can be used to view and monitor the performance of some Salesforce Asynchronous processes over time. 
+Salesforce's [Trust website](https://trust.salesforce.com/en/) can be used to track performance of real-time actions on the Saleforce.com platform. However, many developers and customers rely on Asynchronous processes to work within the Salesforce platform. This tool can be used to view and monitor the performance of some Salesforce Asynchronous processes over time.
 
 # Support for more Data Centers
 
@@ -10,15 +10,15 @@ I need your help! Do you have a development organization that you are no longer 
 
 # Deploy
 
-Deploying through the Metadata API is often used by developers using external tools to develop on Salesforce. The Metadata API's Deploy action sends code from a local development tool into a Salesforce organization. The deployment process takes in a ZIP and validates it against itself and the metadata in the organization. The processing of a deploy is usually correlated to the size of the deploy. However, the processing does not start immedietly. Typically, a request will go into a queue and will be processed soon after. These queue sizes increase based on the amount of deployments and how long they take to execute on the data center. 
+Deploying through the Metadata API is often used by developers using external tools to develop on Salesforce. The Metadata API's Deploy action sends code from a local development tool into a Salesforce organization. The deployment process takes in a ZIP and validates it against itself and the metadata in the organization. The processing of a deploy is usually correlated to the size of the deploy. However, the processing does not start immedietly. Typically, a request will go into a queue and will be processed soon after. These queue sizes increase based on the amount of deployments and how long they take to execute on the data center.
 
-This tool displays the amount of time a small 2-class deployment will stay in the queue before being saved into Salesforce. The deployment can be found within this project. 
+This tool displays the amount of time a small 2-class deployment will stay in the queue before being saved into Salesforce. The deployment can be found within this project.
 
 # Async Apex Test
 
-Async Apex Testing uses the Tooling API. This Tooling API allows you to specify the specific test classes that should be run. The time these requests spends in the queue appears to be unobtainable (or bugged). A fair number of ApexTestRunResult objects returned have a start time before the created date (usually by a second) indicating that there is nearly no queue time. (I suspect that startTime is populated before the Transaction is complete and the record is saved to the database, where createdDate is populated). The Execution time of these jobs should be fairly consistent over time. A spike in Async Apex Execution Time could indicate that servers are generally busy or poor performing. 
+Async Apex Testing uses the Tooling API. This Tooling API allows you to specify the specific test classes that should be run. The time these requests spends in the queue appears to be unobtainable (or bugged). A fair number of ApexTestRunResult objects returned have a start time before the created date (usually by a second) indicating that there is nearly no queue time. (I suspect that startTime is populated before the Transaction is complete and the record is saved to the database, where createdDate is populated). The Execution time of these jobs should be fairly consistent over time. A spike in Async Apex Execution Time could indicate that servers are generally busy or poor performing.
 
-Async Apex Test results displayed through this tool represent the execution time of a test with a single test method, 4 lines and 2 asserts. The exact pakcage can be found within this project. 
+Async Apex Test results displayed through this tool represent the execution time of a test with a single test method, 4 lines and 2 asserts. The exact pakcage can be found within this project.
 
 # Setup
 
@@ -26,17 +26,17 @@ To set up and run this (locally or externally) you should do the following:
 
 1) Create a Google Firebase Account and set up an admin user
 
-2) Downlaod the Firebase admin user JSON file and add environmental variables for these properties (see db_access.js for format. Most properties are just prepended by 'firebase_'). 
+2) Downlaod the Firebase admin user JSON file and add environmental variables for these properties (see db_access.js for format. Most properties are just prepended by 'firebase_').
 
 3) npm install all dependencies
 
 4) Acquire a Salesforce Dev org through normal means
 
-5) Add login data to firebase in the following format: logins: { \<datacenter> : { username : \<username>, password: \<password>\<securityToken> }} 
+5) Add login data to firebase in the following format: logins: { \<datacenter> : { username : \<username>, password: \<password>\<securityToken> }}
 
-6) Set up a scheduled process (I'm using Heroku Scheduler Addon) to run \bin\deploy and \bin\tooling on an interval (I'm using 10 minutes). (Ensure deploy is run before tooling or you may have a problem running tests that don't exist). 
+6) Set up a scheduled process (I'm using Heroku Scheduler Addon) to run \bin\deploy and \bin\tooling on an interval (I'm using 10 minutes). (Ensure deploy is run before tooling or you may have a problem running tests that don't exist).
 
-7) npm start from project directory should get the site up and running. 
+7) npm start from project directory should get the site up and running.
 
 # REST API Access
 
@@ -46,7 +46,7 @@ Current hostname: https://sfdc-verify.heroku.com
 
 Method:  /summary
 
-Params: dataCenters (Comma Separated List of data centers). Not specifying this will include all datacenters. 
+Params: dataCenters (Comma Separated List of data centers). Not specifying this will include all datacenters.
 
 Return value: Summary of performance for requested datacenters. Formatted like this:
 
@@ -81,11 +81,15 @@ Return value: Summary of performance for requested datacenters. Formatted like t
 
 Method:  /raw
 
-Params: dataCenters (Comma Separated List of data centers). Not specifying this will include all datacenters. 
+Params: dataCenters (Comma Separated List of data centers). Not specifying this will include all datacenters.
+
+timePeriod (Number of Hours you wish to see previous to the specified endDateTime). Default is 24 (1 day).
+
+endDateTime (Timestamp of when the query should stop). Default is the value of (new Date().getTime()).
 
 Return value: Raw data for the past day for datacenters specified
 
-```javascript 
+```javascript
 {  
    "eu11":{  
       "Deploy Queue":{  
