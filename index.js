@@ -86,10 +86,9 @@ expr.get('/summary/', function(req,res){
             util.summarize(times,'Daily Max',T.DAY,O.MAX,M.EXECUTION),
             util.summarize(times,'Daily Median',T.DAY,O.MED,M.EXECUTION),
             util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.EXECUTION)
-        ]
+        ];
 
-
-        console.log(Object.keys(output[dc].length));
+        
       }
 
 
