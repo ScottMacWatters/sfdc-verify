@@ -184,6 +184,16 @@ function drawgraph(dc, datas){
         .attr("d",lines[type](datas[type]))
         .attr('stroke', colors[i]);
 
+
+      graph.selectAll("dot")
+        .data(datas[type])
+        .enter().append("svg:circle")
+        .attr("r", 1.25)
+        .attr('fill', colors[i])
+        .attr('class', 'point')
+        .attr("cx", function(d) { return x(x_dim_accessor(d))})
+        .attr("cy", function(d) { return y(y_dim_accessor(d))});
+
       i++;
     }
 

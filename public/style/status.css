@@ -167,9 +167,12 @@ svg {
 }
 
 path {
-  /*stroke: steelblue; */
   stroke-width: 1;
   fill: none;
+}
+
+circle.point {
+  stroke-width: 0;
 }
 
 .axis {

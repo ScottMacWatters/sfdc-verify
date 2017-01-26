@@ -88,7 +88,7 @@
     else {
       var a = relevantTimes[Math.floor(relevantTimes.length/2)][metric];
       var b = relevantTimes[Math.ceil(relevantTimes.length/2)][metric];
-      median = (a + b)/2;
+      median = Math.round((a + b)/2);
     }
 
     return getStat(name, median, metric);
