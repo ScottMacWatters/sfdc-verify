@@ -5,9 +5,12 @@ var sfdc = require('../sfdc/metadata.js');
 
 var sfdc_query_timeout = process.env.sfdc_query_timeout;
 
+var outstanding = 0;
+
 function beginDeployTask(){
   db.getLogins(function(logins){
     for(var dc in logins){
+      outstanding++;
       try{
         (function(dc){
           console.log(dc + ': Deploying...');
@@ -19,7 +22,8 @@ function beginDeployTask(){
             }
             db.saveDeployRequest(dc,id);
             console.log(dc + ': Request Saved');
-            checkDeployTask();
+            outstanding--;
+            checkDeployTask(dc);
           });
         }(dc));
       }
@@ -30,9 +34,10 @@ function beginDeployTask(){
   });
 }
 
-function checkDeployTask(){
+function checkDeployTask(datacenter){
   db.getLogins(function(logins){
     for(var dc in logins){
+      if(datacenter && dc !== datacenter) continue;
       (function(dc){
         console.log(dc + ': Looking for outstanding deployments...');
         var outstandingIds = db.getDeployRequests(dc, function(ids){
@@ -59,3 +64,14 @@ function checkDeployTask(){
 
 beginDeployTask();
 checkDeployTask();
+
+
+setInterval(function(){
+  if(outstanding === 0){
+    console.log('Exiting.');
+    process.exit();
+  }
+  else {
+    console.log(outstanding + ' deploys not yet kicked off.');
+  }
+},1000 * 60);

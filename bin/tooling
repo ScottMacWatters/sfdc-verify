@@ -5,9 +5,12 @@ var db = require('../data-access.js');
 var sfdc = require('../sfdc/tooling.js');
 var sfdc_query_timeout = process.env.sfdc_query_timeout;
 
+var outstanding = 0;
+
 function beginTestTask(){
   db.getLogins(function(logins){
     for(var dc in logins){
+      outstanding++;
       try{
         (function(dc){
           console.log(dc + ': Beginning Test run...');
@@ -19,7 +22,8 @@ function beginTestTask(){
             }
             console.log(id);
             db.saveTestRequest(dc,id);
-            checkTestTask();
+            outstanding--;
+            checkTestTask(dc);
           });
         }(dc));
       }
@@ -31,9 +35,10 @@ function beginTestTask(){
 }
 
 
-function checkTestTask(){
+function checkTestTask(datacenter){
   db.getLogins(function(logins){
     for(var dc in logins){
+      if(datacenter && dc !== datacenter) continue;
       (function(dc){
         console.log(dc + ': Looking for outstanding test results...');
         var outstandingIds = db.getTestRequests(dc, function(ids){
@@ -61,3 +66,13 @@ function checkTestTask(){
 
 checkTestTask();
 beginTestTask();
+
+setInterval(function(){
+  if(outstanding === 0){
+    console.log('Exiting.');
+    process.exit();
+  }
+  else {
+    console.log(outstanding + ' tests not yet kicked off.');
+  }
+},1000 * 60);
