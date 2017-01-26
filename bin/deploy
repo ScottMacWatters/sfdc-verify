@@ -8,19 +8,24 @@ var sfdc_query_timeout = process.env.sfdc_query_timeout;
 function beginDeployTask(){
   db.getLogins(function(logins){
     for(var dc in logins){
-      (function(dc){
-        console.log(dc + ': Deploying...');
-        sfdc.beginDeploy(logins[dc], function(err, id){
-          if(err){
-            console.log("Error:");
-            console.log(err);
-            return;
-          }
-          db.saveDeployRequest(dc,id);
-          console.log(dc + ': Request Saved');
-          checkDeployTask();
-        });
-      }(dc));
+      try{
+        (function(dc){
+          console.log(dc + ': Deploying...');
+          sfdc.beginDeploy(logins[dc], function(err, id){
+            if(err){
+              console.log("Error:");
+              console.log(err);
+              return;
+            }
+            db.saveDeployRequest(dc,id);
+            console.log(dc + ': Request Saved');
+            checkDeployTask();
+          });
+        }(dc));
+      }
+      catch(err){
+        console.log(err);
+      }
     }
   });
 }
