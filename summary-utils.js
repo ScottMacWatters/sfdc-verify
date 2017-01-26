@@ -48,19 +48,19 @@
   }
 
   function getRecent(timesforDc, start, end, name, metric){
-    var relevantTimes = getTimesBetweenDates(timesforDc, start, end);
+    var relevantTimes = getTimesBetweenDates(timesforDc, start, end, metric);
     var recentTime;
     for(var key in relevantTimes){
       if(!recentTime || (recentTime.createdDate < relevantTimes[key].createdDate)){
         recentTime = relevantTimes[key];
       }
     }
-    var value = recentTime[metric];
+    var value = (recentTime) ? recentTime[metric] : 'n/a';
     return getStat(name, value, metric);
   }
 
   function getMax(timesForDc, start, end, name, metric){
-    var relevantTimes = getTimesBetweenDates(timesForDc, start, end);
+    var relevantTimes = getTimesBetweenDates(timesForDc, start, end, metric);
 
     var maxTime = 0;
 
@@ -75,7 +75,7 @@
   }
 
   function getMedian(timesForDc, start, end, name, metric){
-    var relevantTimes = getTimesBetweenDates(timesForDc, start, end);
+    var relevantTimes = getTimesBetweenDates(timesForDc, start, end, metric);
 
     relevantTimes.sort(function(a, b){
       return a[metric] - b[metric];
@@ -95,7 +95,7 @@
   }
 
   function getAverage(timesForDc, start, end, name, metric){
-    var relevantTimes = getTimesBetweenDates(timesForDc, start, end);
+    var relevantTimes = getTimesBetweenDates(timesForDc, start, end, metric);
 
     var sum = 0;
 
@@ -103,17 +103,23 @@
       sum += relevantTimes[i][metric];
     }
 
-    return getStat(name, Math.floor(sum/relevantTimes.length), metric);
+    var avg = Math.floor(sum/relevantTimes.length);
+
+    if(!avg){
+      avg = 'n/a';
+    }
+
+    return getStat(name, avg, metric);
   }
 
-  function getTimesBetweenDates(timesForDc, start, end){
-
+  function getTimesBetweenDates(timesForDc, start, end, metric){
     var first = start.getTime();
     var second = end.getTime();
     var output = [];
     for(var key in timesForDc){
       var stat = timesForDc[key];
-      if(first < stat.createdDate && second >= stat.createdDate){
+      if(stat && stat.createdDate && stat[metric] &&
+        first < stat.createdDate && second >= stat.createdDate){
         output.push(stat);
       }
     }
@@ -154,7 +160,10 @@
   };
 
   function getStatusForValue(value, metric){
-    if(value < METRIC_STATUS_MAP[metric].good){
+    if(value === 'n/a'){
+      return 'bad';
+    }
+    else if(value < METRIC_STATUS_MAP[metric].good){
       return 'good';
     }
     else if(value < METRIC_STATUS_MAP[metric].med){
