@@ -35,7 +35,6 @@ expr.get('/summary/', function(req,res){
 
   var prev = endDate.getTime() - timePeriod;
 
-  //todo: Refactor to query by previous times rather than querying all and processing
   db.getDataCenters(function(dcs){
     var output = {};
 
