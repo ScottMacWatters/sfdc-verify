@@ -37,25 +37,31 @@
     EXECUTION: 'executionSeconds'
   };
 
-  module.exports.summarize = function(timesForDc, name, timePeriod, operation, metric){
-    return getValueOverTime(timesForDc, name, timePeriod, OPERATION_MAP[operation], metric);
+  module.exports.summarize = function(timesForDc, name, timePeriod, operation, metric, endDate){
+    return getValueOverTime(timesForDc, name, timePeriod, OPERATION_MAP[operation], metric, endDate);
   }
 
-  function getValueOverTime(timesForDc, name, timePeriod, operation, metric){
-    var now = new Date();
+  function getValueOverTime(timesForDc, name, timePeriod, operation, metric, endDate){
+    var now;
+    if(endDate){
+      now = endDate;
+    }
+    else{
+      now = new Date();
+    }
     var previous = new Date(now.getTime() - timePeriod);
     return operation(timesForDc, previous, now, name, metric);
   }
 
   function getRecent(timesforDc, start, end, name, metric){
     var relevantTimes = getTimesBetweenDates(timesforDc, start, end, metric);
-    var recentTime;
+    var recentTime = null;
     for(var key in relevantTimes){
-      if(!recentTime || (recentTime.createdDate < relevantTimes[key].createdDate)){
+      if(recentTime === null || (recentTime.createdDate < relevantTimes[key].createdDate)){
         recentTime = relevantTimes[key];
       }
     }
-    var value = (recentTime) ? recentTime[metric] : 'n/a';
+    var value = (recentTime === null) ? 'n/a' : recentTime[metric];
     return getStat(name, value, metric);
   }
 
@@ -105,7 +111,7 @@
 
     var avg = Math.floor(sum/relevantTimes.length);
 
-    if(!avg){
+    if(avg === null){
       avg = 'n/a';
     }
 
@@ -118,7 +124,7 @@
     var output = [];
     for(var key in timesForDc){
       var stat = timesForDc[key];
-      if(stat && stat.createdDate && stat[metric] &&
+      if(stat && stat.createdDate && stat[metric] !== null &&
         first < stat.createdDate && second >= stat.createdDate){
         output.push(stat);
       }

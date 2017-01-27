@@ -24,75 +24,88 @@ expr.get('/summary/', function(req,res){
     dataCenters = req.query.dataCenters.split(',');
   }
 
+  //prevous 1 week
+  var timePeriod = 24 * 7 * 60 * 60 * 1000;
+
+  //Starting now if nothing specified
+  var endDate = new Date();
+  if(req.query.endDateTime){
+    endDate = new Date(Number(req.query.endDateTime));
+  }
+
+  var prev = endDate.getTime() - timePeriod;
+
   //todo: Refactor to query by previous times rather than querying all and processing
-  db.getDeployTimes(function(data){
+  db.getDataCenters(function(dcs){
     var output = {};
+
+    var dcCount = dcs.length;
+    var totalQueries = dcs.length * 2; //deploy and test.
+    var completeQueries = 0;
 
     var T = util.TIME;
     var O = util.OP;
     var M = util.METRIC;
 
-    for(var dc in data){
+    dcs.forEach(function(dc){
       if(dataCenters && !dataCenters.includes(dc)){
-        continue;
+        completeQueries+=2;
+        return;
       }
-      var times = data[dc];
-
-      //If less than 20 data points, skip this datacenter until it gets more data.
-      if(Object.keys(times).length < 20){
-        continue;
-      }
-
-      output[dc] = {};
-      output[dc]['Deploy Queue Time'] = [
-        util.summarize(times,'Recent',T.HOUR,O.RECENT,M.QUEUED),
-        util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.QUEUED),
-        util.summarize(times,'Hourly Average',T.HOUR,O.AVG,M.QUEUED),
-        util.summarize(times,'Daily Max',T.DAY,O.MAX,M.QUEUED),
-        util.summarize(times,'Daily Median',T.DAY,O.MED,M.QUEUED),
-        util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.QUEUED)
-      ];
-    }
-    db.getTestTimes(function(data){
-      for(dc in data){
-        if(dataCenters && !dataCenters.includes(dc)){
-          continue;
+      db.getDeployTimesForDatacenterForDates(dc, prev, endDate.getTime(), function(times){
+        //If less than 20 data points, skip this datacenter until it gets more data.
+        if(Object.keys(times).length < 20){
+          return;
         }
 
         if(!output[dc]){
           output[dc] = {};
         }
-        var times = data[dc];
 
+        output[dc]['Deploy Queue Time'] = [
+          util.summarize(times,'Recent',T.HOUR,O.RECENT,M.QUEUED, endDate),
+          util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.QUEUED, endDate),
+          util.summarize(times,'Hourly Average',T.HOUR,O.AVG,M.QUEUED, endDate),
+          util.summarize(times,'Daily Max',T.DAY,O.MAX,M.QUEUED, endDate),
+          util.summarize(times,'Daily Median',T.DAY,O.MED,M.QUEUED, endDate),
+          util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.QUEUED, endDate)
+        ];
+        completeQueries++;
+        checkCompleteAndSendResult(output,completeQueries,totalQueries);
+      });
+
+      db.getTestTimesForDatacenterForDates(dc, prev, endDate.getTime(), function(times){
         //If less than 20 data points, skip this datacenter until it gets more data.
         if(Object.keys(times).length < 20){
-          continue;
+          return;
+        }
+
+        if(!output[dc]){
+          output[dc] = {};
         }
 
         output[dc]['Async Test Execution Time'] = [
-            util.summarize(times,'Recent',T.HOUR,O.RECENT,M.EXECUTION),
-            util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.EXECUTION),
-            util.summarize(times,'Hourly Average',T.HOUR,O.AVG,M.EXECUTION),
-            util.summarize(times,'Daily Max',T.DAY,O.MAX,M.EXECUTION),
-            util.summarize(times,'Daily Median',T.DAY,O.MED,M.EXECUTION),
-            util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.EXECUTION)
+          util.summarize(times,'Recent',T.HOUR,O.RECENT,M.EXECUTION, endDate),
+          util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.EXECUTION, endDate),
+          util.summarize(times,'Hourly Average',T.HOUR,O.AVG,M.EXECUTION, endDate),
+          util.summarize(times,'Daily Max',T.DAY,O.MAX,M.EXECUTION, endDate),
+          util.summarize(times,'Daily Median',T.DAY,O.MED,M.EXECUTION, endDate),
+          util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.EXECUTION, endDate)
         ];
+        completeQueries++;
+        checkCompleteAndSendResult(output,completeQueries,totalQueries);
+      });
+    });
+  });
 
-      }
-
-      for(var dc in output){
-        if(Object.keys(output[dc]).length === 0) {
-          output[dc] = undefined;
-        }
-      }
-
-
+  function checkCompleteAndSendResult(output, completeQueries, totalQueries){
+    if(completeQueries === totalQueries){
       res.setHeader('Content-Type', 'application/json');
       res.send(JSON.stringify(output));
       req.next();
-    });
-
-  });
+    }
+    return;
+  }
 });
 
 expr.get('/raw/', function(req,res){
