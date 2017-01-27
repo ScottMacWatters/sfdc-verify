@@ -74,8 +74,18 @@ function getSummary(){
     var result = JSON.parse(responseBody);
     populate(result);
   }
-  request.open('GET','/summary?dataCenters=' + getQueryStringValue("dcs"), true);
+  request.open('GET',getSummaryUrl(), true);
   request.send();
+}
+
+function getSummaryUrl(){
+  var ret = '/summary?dataCenters=';
+  ret+= getQueryStringValue("dcs");
+  var endTime = getQueryStringValue("endDateTime");
+  if(endTime){
+    ret+= "&endDateTime=" + endTime;
+  }
+  return ret;
 }
 
 function getQueryStringValue (key) {
