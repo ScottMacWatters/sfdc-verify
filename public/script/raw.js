@@ -31,13 +31,19 @@ function getRaw(){  var request = new XMLHttpRequest();
 function getUrl(){
   var ret = '/raw?dataCenters=';
   ret+= getQueryStringValue("dcs");
-  var timePeriod = getQueryStringValue("timePeriod");
-  if(timePeriod) {
-    ret+= "&timePeriod=" + timePeriod;
+  var viewType = getQueryStringValue("view");
+  if(viewType){
+    ret += getViewTypeUrlParams(viewType);
   }
-  var endTime = getQueryStringValue("endDateTime");
-  if(endTime){
-    ret+= "&endDateTime=" + endTime;
+  else {
+    var timePeriod = getQueryStringValue("timePeriod");
+    if(timePeriod) {
+      ret+= "&timePeriod=" + timePeriod;
+    }
+    var endTime = getQueryStringValue("endDateTime");
+    if(endTime){
+      ret+= "&endDateTime=" + endTime;
+    }
   }
   return ret;
 }

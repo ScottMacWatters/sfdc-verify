@@ -55,13 +55,15 @@
 
   function getRecent(timesforDc, start, end, name, metric){
     var relevantTimes = getTimesBetweenDates(timesforDc, start, end, metric);
-    var recentTime = null;
+    var foundRecent = false;
+    var recentTime;
     for(var key in relevantTimes){
-      if(recentTime === null || (recentTime.createdDate < relevantTimes[key].createdDate)){
+      if(!foundRecent || (recentTime.createdDate < relevantTimes[key].createdDate)){
+        foundRecent = true;
         recentTime = relevantTimes[key];
       }
     }
-    var value = (recentTime === null) ? 'n/a' : recentTime[metric];
+    var value = (foundRecent) ? recentTime[metric] : 'n/a';
     return getStat(name, value, metric);
   }
 
@@ -88,6 +90,9 @@
     });
 
     var median;
+    if(relevantTimes.length === 0){
+      median = 0;
+    }
     if(relevantTimes.length / 2 === 1){
       median = relevantTimes[Math.floor(relevantTimes.length/2)][metric];
     }
@@ -108,8 +113,10 @@
     for(var i in relevantTimes){
       sum += relevantTimes[i][metric];
     }
-
-    var avg = Math.floor(sum/relevantTimes.length);
+    var avg = 0;
+    if(relevantTimes.length){
+      avg = Math.floor(sum/relevantTimes.length);
+    }
 
     if(avg === null){
       avg = 'n/a';

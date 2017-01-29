@@ -28,9 +28,14 @@ expr.get('/summary/', function(req,res){
   var timePeriod = 24 * 7 * 60 * 60 * 1000;
 
   //Starting now if nothing specified
-  var endDate = new Date();
+  var now = new Date();
+  var endDate = now;
   if(req.query.endDateTime){
     endDate = new Date(Number(req.query.endDateTime));
+  }
+  //if End Date is in the future, just set it to now for summary.
+  if(endDate.getTime() > now.getTime()){
+    endDate = now;
   }
 
   var prev = endDate.getTime() - timePeriod;
