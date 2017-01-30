@@ -97,7 +97,7 @@ function getViewTypeUrlParams(viewType){
     return '&endDateTime=' + getTomorrowDate() + '&timePeriod=24';
   }
   if(viewType && viewType === 'week'){
-    return '&endDatetime=' + getEndOfWeek() + '&timePeriod=' + (24 * 7);
+    return '&endDateTime=' + getEndOfWeek() + '&timePeriod=' + (24 * 7);
   }
   return '';
 }

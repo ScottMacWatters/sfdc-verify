@@ -5,13 +5,17 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "tooling": "bin/tooling",
+    "deploy": "bin/deploy"
   },
   "keywords": [
     "salesforce",
     "force",
     "sfdc",
-    "deploy"
+    "deploy",
+    "apex",
+    "firebase"
   ],
   "author": "Scott MacWatters",
   "license": "ISC",
