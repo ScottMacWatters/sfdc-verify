@@ -9,11 +9,11 @@ var outstanding = 0;
 
 function beginDeployTask(){
   db.getLogins(function(logins){
+    console.log('Beginning Deployments for datacenters',Object.keys(logins));
     for(var dc in logins){
       outstanding++;
       try{
         (function(dc){
-          console.log(dc + ': Deploying...');
           sfdc.beginDeploy(logins[dc], function(err, id){
             if(err){
               console.log("Error:");
@@ -21,7 +21,6 @@ function beginDeployTask(){
               return;
             }
             db.saveDeployRequest(dc,id);
-            console.log(dc + ': Request Saved');
             outstanding--;
             checkDeployTask(dc);
           });
@@ -39,11 +38,9 @@ function checkDeployTask(datacenter){
     for(var dc in logins){
       if(datacenter && dc !== datacenter) continue;
       (function(dc){
-        console.log(dc + ': Looking for outstanding deployments...');
         var outstandingIds = db.getDeployRequests(dc, function(ids){
           for(var key in ids){
             (function(id){
-              console.log(dc + '-' + id + ': Checking status...');
               sfdc.checkDeployStatus(logins[dc],id,function(err,times){
                 if(err){
                   console.log('Error:');
@@ -52,7 +49,6 @@ function checkDeployTask(datacenter){
                 }
                 db.clearCompletedDeployRequest(dc,id);
                 db.saveDeployTime(dc,times);
-                console.log(dc + ': Saved result ' + times.queuedSeconds);
               },sfdc_query_timeout);
             }(ids[key].asyncProcessId))
           }
@@ -68,10 +64,10 @@ checkDeployTask();
 
 setInterval(function(){
   if(outstanding === 0){
-    console.log('Exiting.');
+    console.log('Deployments Complete.');
     process.exit();
   }
-  else {
-    console.log(outstanding + ' deploys not yet kicked off.');
+  else{
+    console.log(outstanding + ' Deployments in progress.');
   }
 },1000 * 60);
