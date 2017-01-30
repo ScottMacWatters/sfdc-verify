@@ -132,7 +132,7 @@ function drawgraph(dc, datas){
   function render(datas){
 
     // X scale will fit all values from data[] within pixels 0-w
-    var x = d3.scaleLinear().domain(x_range).range([0, w]);
+    var x = d3.scaleTime().domain(x_range).range([0, w]);
     // Y scale will fit values from 0-10 within pixels h-0 (Note the inverted domain  for the y-scale: bigger is up!)
     var y = d3.scaleLinear().domain(y_range).range([h, 0]);
     // automatically determining max range can work something like this
@@ -160,7 +160,13 @@ function drawgraph(dc, datas){
       .attr("transform", "translate(" + m[3] + "," + m[0] + ")");
 
     // create yAxis
-    var xAxis =   d3.axisBottom().scale(x).tickSize(-h).tickFormat(d3.timeFormat("%H:%M"));
+    var timeCovered = x_range[1] - x_range[0];
+    var twoDays = 2 * 24 * 60 * 60 * 1000;
+    var timeFormat = (timeCovered > twoDays) ? d3.timeFormat("%m/%d %H:%M") : d3.timeFormat("%H:%M");
+    var xAxis = d3.axisBottom().scale(x).tickSize(-h).tickFormat(timeFormat);
+
+
+
     // Add the x-axis.
     graph.append("svg:g")
       .attr("class", "x axis")
