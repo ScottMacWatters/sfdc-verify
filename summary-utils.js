@@ -41,6 +41,10 @@
     return getValueOverTime(timesForDc, name, timePeriod, OPERATION_MAP[operation], metric, endDate);
   }
 
+  module.exports.summarizeRaw = function(timesForDc, operation, metric){
+    return OPERATION_MAP[operation](timesForDc, metric);
+  }
+
   function getValueOverTime(timesForDc, name, timePeriod, operation, metric, endDate){
     var now;
     if(endDate){
@@ -50,11 +54,12 @@
       now = new Date();
     }
     var previous = new Date(now.getTime() - timePeriod);
-    return operation(timesForDc, previous, now, name, metric);
+    var relevantTimes = getTimesBetweenDates(timesForDc, previous, now, metric);
+
+    return getStat(name,operation(relevantTimes, metric),metric);
   }
 
-  function getRecent(timesforDc, start, end, name, metric){
-    var relevantTimes = getTimesBetweenDates(timesforDc, start, end, metric);
+  function getRecent(relevantTimes, metric){
     var foundRecent = false;
     var recentTime;
     for(var key in relevantTimes){
@@ -64,11 +69,10 @@
       }
     }
     var value = (foundRecent) ? recentTime[metric] : 'n/a';
-    return getStat(name, value, metric);
+    return value;
   }
 
-  function getMax(timesForDc, start, end, name, metric){
-    var relevantTimes = getTimesBetweenDates(timesForDc, start, end, metric);
+  function getMax(relevantTimes, metric){
 
     var maxTime = 0;
 
@@ -79,11 +83,10 @@
       }
     }
 
-    return getStat(name, maxTime, metric);
+    return maxTime;
   }
 
-  function getMedian(timesForDc, start, end, name, metric){
-    var relevantTimes = getTimesBetweenDates(timesForDc, start, end, metric);
+  function getMedian(relevantTimes, metric){
 
     relevantTimes.sort(function(a, b){
       return a[metric] - b[metric];
@@ -93,20 +96,21 @@
     if(relevantTimes.length === 0){
       median = 0;
     }
-    if(relevantTimes.length / 2 === 1){
+    else if(Math.round(relevantTimes.length / 2) === 1){
       median = relevantTimes[Math.floor(relevantTimes.length/2)][metric];
     }
     else {
-      var a = relevantTimes[Math.floor(relevantTimes.length/2)][metric];
-      var b = relevantTimes[Math.ceil(relevantTimes.length/2)][metric];
+      var aind = Math.floor(relevantTimes.length/2);
+      var bind = Math.ceil(relevantTimes.length/2);
+      var a = relevantTimes[aind][metric];
+      var b = relevantTimes[bind][metric];
       median = Math.round((a + b)/2);
     }
 
-    return getStat(name, median, metric);
+    return median;
   }
 
-  function getAverage(timesForDc, start, end, name, metric){
-    var relevantTimes = getTimesBetweenDates(timesForDc, start, end, metric);
+  function getAverage(relevantTimes, metric){
 
     var sum = 0;
 
@@ -122,7 +126,7 @@
       avg = 'n/a';
     }
 
-    return getStat(name, avg, metric);
+    return avg;
   }
 
   function getTimesBetweenDates(timesForDc, start, end, metric){

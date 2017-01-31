@@ -1,12 +1,31 @@
 var colors = [
   '#4682b4',
+  'brown',
+  '#4682b4',
   'brown'
 ];
 
 var typeMetric = {
   "Apex Test Execution": "executionSeconds",
   "Deploy Queue": "queuedSeconds",
+  "Predicted Apex Test Execution": "executionSeconds",
+  "Predicted Deploy Queue": "queuedSeconds"
 };
+
+var typeInfo = {
+  "Apex Test Execution": {
+    metric: "executionSeconds",
+    color: 'brown',
+    class: '',
+    predictClass: 'predict test'
+  },
+  "Deploy Queue": {
+    metric: "queuedSeconds",
+    color: '#4682b4',
+    class: '',
+    predictClass: 'predict deploy'
+  }
+}
 
 
 function getRaw(){  var request = new XMLHttpRequest();
@@ -45,6 +64,12 @@ function getUrl(){
       ret+= "&endDateTime=" + endTime;
     }
   }
+  var predictions=getQueryStringValue("predictions");
+  if(predictions){
+    ret+= "&predictions=true";
+  }
+
+  console.log(ret);
   return ret;
 }
 
@@ -65,12 +90,11 @@ function getArraysFromRaw(rawJson){
       arr.sort(function(a,b){
         return a.createdDate - b.createdDate;
       });
-      if(arr.length >= 20) {
+      if(arr.length >= 20 || isPrediction(type)) {
         output[dc][type] = arr;
       }
     }
   }
-
   return output;
 }
 
@@ -190,23 +214,24 @@ function drawgraph(dc, datas){
 
     // Add the line by appending an svg:path element with the data line we created above
     // do this AFTER the axes above so that the line is above the tick-lines
-    var i = 0;
     for(var type in lines){
+
+      var t = getTypeInfo(type);
+      var clazz = (isPrediction(type)) ? t.predictClass : t.class;
+
       graph.append("svg:path")
         .attr("d",lines[type](datas[type]))
-        .attr('stroke', colors[i]);
-
+        .attr('stroke', t.color)
+        .attr("class", clazz);
 
       graph.selectAll("dot")
         .data(datas[type])
         .enter().append("svg:circle")
         .attr("r", 1.25)
-        .attr('fill', colors[i])
-        .attr('class', 'point')
+        .attr('fill', t.color)
+        .attr('class', 'point ' + clazz)
         .attr("cx", function(d) { return x(x_dim_accessor(d))})
         .attr("cy", function(d) { return y(y_dim_accessor(d))});
-
-      i++;
     }
 
 
@@ -215,31 +240,46 @@ function drawgraph(dc, datas){
       .attr('class','legend')
       .attr('transform','translate(10,0)');
 
+
+    var legendWidth = (Object.keys(lines).length > 2) ? 135 : 187;
+
     legend.append('rect')
       .attr('fill','#f4f6f9')
       .attr('stroke','#d7dfe6')
       .attr('stroke-width',1)
-      .attr('width',135)
-      .attr('height',18 * colors.length)
+      .attr('width',legendWidth)
+      .attr('height',18 * Object.keys(typeInfo).length)
       .attr('x',-5)
       .attr('y',-5);
 
-    i = 0;
+    var i = 0;
     for(var type in lines){
+      var t = getTypeInfo(type);
+      if((Object.keys(lines).length > 2) && isPrediction(type)) continue;
+
       var g = legend.append('g');
 
       g.append('rect')
         .attr('class','legend-color')
-        .attr('fill',colors[i])
+        .attr('fill',t.color)
         .attr('y', 0 + (i * 15));
       g.append('text')
         .text(type)
         .attr('class','legend')
         .attr('x', 15)
         .attr('y',10 + (i * 15));
+
       i++;
     }
   }
 
 
+}
+
+function getTypeInfo(type){
+  return typeInfo[type.replace('Predicted ','')];
+}
+
+function isPrediction(type){
+  return type.includes('Predicted ');
 }

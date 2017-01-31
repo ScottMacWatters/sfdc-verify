@@ -29,6 +29,7 @@
 
   var deployRefName = (testingNamespace ? testingNamespace : '') + 'deploy';
   var testRefName = (testingNamespace ? testingNamespace : '') + 'test';
+  var predictionRefName = (testingNamespace ? testingNamespace : '') + 'predictions';
 
   //Note: None of these things are encrypted in the DB.
   //These are essentially throw away orgs with no production
@@ -158,6 +159,28 @@
       callback(snapshot.val());
     });
   };
+
+  module.exports.savePredictionTimes = function(times){
+    var baseRef = db.ref(predictionRefName + '/');
+    for(var dc in times){
+      var dcRef = baseRef.child(dc);
+      for(var day in times[dc]){
+        var dayRef = dcRef.child(day);
+        for(var hour in times[dc][day]){
+          var hourRef = dayRef.child(hour);
+          var time = times[dc][day][hour];
+          hourRef.set(time);
+        }
+      }
+    }
+  }
+
+  module.exports.getPredictionTimesForDatacenter = function(datacenter, callback){
+    var predictionRef = db.ref(predictionRefName + '/' + datacenter + '/');
+    predictionRef.once('value').then(function(snapshot){
+      callback(snapshot.val());
+    });
+  }
 
 
 }());

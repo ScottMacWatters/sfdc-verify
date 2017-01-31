@@ -26,6 +26,11 @@ h1 {
   float: left;
 }
 
+#title a {
+  text-decoration: none;
+  color: white;
+}
+
 #help {
   padding: 15px 40px 15px 10px;
   text-align: right;
@@ -207,4 +212,16 @@ circle.point {
 .legend-color {
   width: 10px;
   height: 10px;
+}
+
+.predict.deploy {
+  stroke-dasharray: 5,5;
+}
+
+.predict.test{
+  stroke-dasharray: 3,5;
+}
+
+.predict circle {
+  r: 0px;
 }

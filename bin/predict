@@ -1,0 +1,147 @@
+#!/usr/bin/env node
+
+var db = require('../data-access.js');
+var util = require('../summary-utils.js');
+
+
+const HOUR = 60 * 60 * 1000;
+const WEEK = HOUR * 24 * 7;
+
+var O = util.OP;
+var M = util.METRIC;
+
+
+var predictScope = (process.env.predict_scope) ? process.env.predict_scope : 25;
+var historyWeeks = (process.env.history_weeks) ? process.env.history_weeks : 4;
+
+var predictionTypes = {
+  deploy: {
+    query: db.getDeployTimesForDatacenterForDates,
+    metric: M.QUEUED,
+    prefix: "deploy_",
+    operations: [O.AVG, O.MAX, O.MED]
+  },
+  tooling: {
+    query: db.getTestTimesForDatacenterForDates,
+    metric: M.EXECUTION,
+    prefix: "test_",
+    operations: [O.AVG, O.MAX, O.MED]
+  }
+};
+
+var types = Object.keys(predictionTypes);
+
+function predictForDatacenter(){
+  db.getDataCenters(function(dcs){
+    getTimes(dcs, function(relevantTimes){
+
+
+      var predictions = {};
+      for(var dc in relevantTimes){
+        for(var type in relevantTimes[dc]){
+          for(var day in relevantTimes[dc][type]){
+            for(var hour in relevantTimes[dc][type][day]){
+              var times = relevantTimes[dc][type][day][hour];
+
+              if(!predictions[dc]) predictions[dc] = {};
+              if(!predictions[dc][day]) predictions[dc][day] = {};
+              if(!predictions[dc][day][hour]) predictions[dc][day][hour] = {};
+
+              var predictionType = predictionTypes[type];
+              var metric = predictionType.metric;
+
+              predictionType.operations.forEach(function(op){
+                var key = predictionType.prefix + op.toLowerCase() + '_' + metric;
+                if(times.length > 0){
+                  try{
+                    predictions[dc][day][hour][key] = util.summarizeRaw(times, op, metric);
+                  }
+                  catch(err){
+                    console.log(err);
+                  }
+                }
+              });
+            }
+          }
+        }
+      }
+
+      db.savePredictionTimes(predictions);
+
+      //exit 30 seconds after save call. Should be more than enough time to complete.
+      setTimeout(function(){
+        process.exit();
+      },1000 * 30);
+    });
+  });
+}
+
+function getTimes(dcs, callback){
+  var total = historyWeeks * types.length * dcs.length * predictScope;
+  var completed = 0;
+  var output = {};
+
+  var dateRanges = getRanges(predictScope, historyWeeks);
+
+  dcs.forEach(function(dc){
+    types.forEach(function(type){
+      dateRanges.forEach(function(list){
+        list.forEach(function(range){
+          var d = new Date(range.start);
+          var day = d.getDay();
+          var hour = d.getHours();
+          if(!output[dc]) output[dc] = {};
+          if(!output[dc][type]) output[dc][type] = {};
+          if(!output[dc][type][day]) output[dc][type][day] = {};
+          if(!output[dc][type][day][hour]) output[dc][type][day][hour] = [];
+          predictionTypes[type].query(dc, range.start, range.end, function(values){
+            for(key in values){
+              output[dc][type][day][hour].push(values[key]);
+            }
+            completed ++;
+            checkCompleteAndCallback(total, completed, output);
+          });
+        });
+      });
+    });
+  });
+
+
+
+  function checkCompleteAndCallback(total, completed, output){
+    if(total === completed){
+      callback(output);
+    }
+  }
+}
+
+function getRanges(scope, history){
+  var now = new Date();
+  now = new Date(now.getTime());
+  now.setMinutes(0);
+  now.setSeconds(0);
+  now.setMilliseconds(0);
+  var now = now.getTime();
+
+  var rangeList = [];
+  for(var i = 0; i < scope; i++){
+    var start = now - ((i +1) * HOUR);
+    var end = now - (i * HOUR);
+
+    var dateList = [];
+
+    for(var j = 0; j < history; j++){
+      var range = {};
+      range.start = start - (j * WEEK);
+      range.end = end - (j * WEEK);
+      dateList.push(range);
+    }
+    rangeList.push(dateList);
+  }
+  return rangeList;
+}
+
+predictForDatacenter();
+
+
+//todo: Make this process.exit();

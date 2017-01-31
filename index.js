@@ -1,4 +1,5 @@
 var util = require('./summary-utils.js');
+var putil = require('./predictions-utils.js');
 var express = require('express');
 var bodyParser = require('body-parser');
 var db = require('./data-access.js');
@@ -131,6 +132,12 @@ expr.get('/raw/', function(req,res){
     endDate = Number(req.query.endDateTime);
   }
 
+  //Include predictions. current default is false
+  var includePredictions = false;
+  if(req.query.predictions){
+    includePredictions = true;
+  }
+
   timePeriod = timePeriod * 1000 * 60 * 60; //convert to MS
 
   var prev = endDate - timePeriod;
@@ -139,14 +146,14 @@ expr.get('/raw/', function(req,res){
 
     var output = {};
     var dcCount = dcs.length;
-    var totalQueries = dcs.length * 2; //deploy and test.
+    var totalQueries = dcs.length * 3; //deploy and test.
     var completeQueries = 0;
 
     for(var i in dcs){
       var dc = dcs[i];
       (function(dc){
         if(dataCenters && !dataCenters.includes(dc)){
-          completeQueries += 2;
+          completeQueries += 3;
           return;
         }
 
@@ -163,6 +170,23 @@ expr.get('/raw/', function(req,res){
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries,totalQueries);
         })
+
+        var predictionStart = new Date().getTime();
+        predictionStart = (predictionStart < prev) ? prev : predictionStart;
+        if(includePredictions && predictionStart < endDate){
+          db.getPredictionTimesForDatacenter(dc, function(predictions){
+            var predictions = putil.getFormattedPredictionsByType(predictions,predictionStart,endDate);
+            for(var name in predictions){
+              output[dc][name] = predictions[name];
+            }
+            completeQueries++;
+            checkCompleteAndSendResult(output,completeQueries,totalQueries);
+          });
+        }
+        else{
+          completeQueries++;
+          checkCompleteAndSendResult(output,completeQueries,totalQueries);
+        }
 
       }(dc));
     }
