@@ -113,7 +113,7 @@ function drawgraph(dc, datas){
 
   // define dimensions of graph
   var m = [20, 50, 20, 50]; // margins
-  var w = document.body.clientWidth - m[1] - m[3] - 80; // width
+  var w = document.body.clientWidth - m[1] - m[3] - 80 -10; // width
   var h = 200 - m[0] - m[2]; // height
 
   var x_dim_accessor = function(d){return d.createdDate};
@@ -262,6 +262,8 @@ function drawgraph(dc, datas){
       g.append('rect')
         .attr('class','legend-color')
         .attr('fill',t.color)
+        .attr('width',10)
+        .attr('height',10)
         .attr('y', 0 + (i * 15));
       g.append('text')
         .text(type)
