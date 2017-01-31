@@ -32,6 +32,7 @@ var predictionTypes = {
 var types = Object.keys(predictionTypes);
 
 function predictForDatacenter(){
+  console.log('Starting to generate prediction data.');
   db.getDataCenters(function(dcs){
     getTimes(dcs, function(relevantTimes){
 
@@ -70,6 +71,7 @@ function predictForDatacenter(){
 
       //exit 30 seconds after save call. Should be more than enough time to complete.
       setTimeout(function(){
+        console.log('Prediction data collected.');
         process.exit();
       },1000 * 30);
     });
