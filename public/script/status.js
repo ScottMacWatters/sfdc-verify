@@ -79,47 +79,8 @@ function getSummary(){
 }
 
 function getSummaryUrl(){
-  var ret = '/summary?dataCenters=';
-  ret+= getQueryStringValue("dcs");
-  var endTime = getQueryStringValue("endDateTime");
-  var viewType = getQueryStringValue("view");
-  if(viewType){
-    ret += getViewTypeUrlParams(viewType);
-  }
-  else if(endTime){
-    ret+= "&endDateTime=" + endTime;
-  }
+  var ret = '/summary' + getUrlParamsFromFilter();
   return ret;
-}
-
-function getViewTypeUrlParams(viewType){
-  if(viewType && viewType === 'day'){
-    return '&endDateTime=' + getTomorrowDate() + '&timePeriod=24';
-  }
-  if(viewType && viewType === 'week'){
-    return '&endDateTime=' + getEndOfWeek() + '&timePeriod=' + (24 * 7);
-  }
-  return '';
-}
-
-function getTomorrowDate(){
-  var t = new Date(new Date().getTime() + (1000 * 60 * 60 * 24));
-  return getMidnight(t);
-}
-
-function getMidnight(date){
-  return new Date((date.getYear() + 1900) + '/' + (date.getMonth() + 1) + '/' + date.getDate()).getTime();
-}
-
-function getEndOfWeek(){
-  var today = new Date();
-  var toAdd = 6 - today.getDay();
-  var n = new Date(new Date().getTime() + (1000 * 60 * 60 * 24 * toAdd));
-  return getMidnight(n);
-}
-
-function getQueryStringValue (key) {
-  return decodeURIComponent(window.location.search.replace(new RegExp("^(?:.*[&\\?]" + encodeURIComponent(key).replace(/[\.\+\*]/g, "\\$&") + "(?:\\=([^&]*))?)?.*$", "i"), "$1"));
 }
 
 function openHelpWindow(){
@@ -130,9 +91,21 @@ function closeHelpWindow(){
   document.getElementById("helpWindow").style.display = 'none';
 }
 
+function openFilterWindow(){
+  document.getElementById("filterWindow").style.display = 'block';
+}
+
+function closeFilterWindow(){
+  document.getElementById("filterWindow").style.display = 'none';
+  getSummary();
+}
+
 window.onload = function(){
+  populateFilterOptionsPanel();
   getSummary();
   document.getElementById("help").onclick = openHelpWindow;
-  document.getElementById("close").onclick = closeHelpWindow;
+  document.getElementById("helpClose").onclick = closeHelpWindow;
+  document.getElementById("filter").onclick = openFilterWindow;
+  document.getElementById("filterClose").onclick = closeFilterWindow;
   window.setTimeout(getSummary, 11 * 60 * 1000);
 };

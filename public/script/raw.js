@@ -16,14 +16,14 @@ var typeInfo = {
   "Apex Test Execution": {
     metric: "executionSeconds",
     color: 'brown',
-    class: '',
-    predictClass: 'predict test'
+    class: 'statGraph',
+    predictClass: 'statGraph predict test'
   },
   "Deploy Queue": {
     metric: "queuedSeconds",
     color: '#4682b4',
-    class: '',
-    predictClass: 'predict deploy'
+    class: 'statGraph',
+    predictClass: 'statGraph predict deploy'
   }
 }
 
@@ -48,28 +48,7 @@ function getRaw(){  var request = new XMLHttpRequest();
 }
 
 function getUrl(){
-  var ret = '/raw?dataCenters=';
-  ret+= getQueryStringValue("dcs");
-  var viewType = getQueryStringValue("view");
-  if(viewType){
-    ret += getViewTypeUrlParams(viewType);
-  }
-  else {
-    var timePeriod = getQueryStringValue("timePeriod");
-    if(timePeriod) {
-      ret+= "&timePeriod=" + timePeriod;
-    }
-    var endTime = getQueryStringValue("endDateTime");
-    if(endTime){
-      ret+= "&endDateTime=" + endTime;
-    }
-  }
-  var predictions=getQueryStringValue("predictions");
-  if(predictions){
-    ret+= "&predictions=true";
-  }
-
-  console.log(ret);
+  var ret = '/raw' + getUrlParamsFromFilter();
   return ret;
 }
 
@@ -224,14 +203,16 @@ function drawgraph(dc, datas){
         .attr('stroke', t.color)
         .attr("class", clazz);
 
-      graph.selectAll("dot")
-        .data(datas[type])
-        .enter().append("svg:circle")
-        .attr("r", 1.25)
-        .attr('fill', t.color)
-        .attr('class', 'point ' + clazz)
-        .attr("cx", function(d) { return x(x_dim_accessor(d))})
-        .attr("cy", function(d) { return y(y_dim_accessor(d))});
+      if(!isPrediction(type)){
+        graph.selectAll("dot")
+          .data(datas[type])
+          .enter().append("svg:circle")
+          .attr("r", 1.25)
+          .attr('fill', t.color)
+          .attr('class', 'point ' + clazz)
+          .attr("cx", function(d) { return x(x_dim_accessor(d))})
+          .attr("cy", function(d) { return y(y_dim_accessor(d))});
+      }
     }
 
 

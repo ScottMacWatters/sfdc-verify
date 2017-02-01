@@ -3,6 +3,7 @@
   <head>
     <title>Force.com Deploy Times</title>
     <link rel="stylesheet" type="text/css" href="/style/status.css" />
+    <script src="/script/filter.js"></script>
     <script src="/script/status.js"></script>
     <script src="/script/raw.js"></script>
     <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -11,29 +12,37 @@
   <body>
     <div id="header">
       <h1 id="title">
-        <a href="/?view=day">
+        <a href="/">
           Salesforce Deploy Times
         </a>
       </h1>
-      <h1 id="help">
-        ?
-      </h1>
+      <h1 id="help">?</h1>
+      <div id="filter">
+        <svg width="30px" height="30px">
+          <path d="M22.2 1.8H1.8c-.7 0-1.1.8-.6 1.3l9 10.5c.2.3.4.8.4 1.2v6.7c0 .3.3.7.7.7h1.4c.4 0 .7-.4.7-.7v-6.7c0-.4.1-.9.4-1.2l9-10.5c.5-.5.1-1.3-.6-1.3z"/>
+        </svg>
+      </div>
     </div>
     <div id="output">
     </div>
     <div id="loading">
       Loading...
     </div>
-    <div id="helpWindow">
-      <div id="helpContent">
-        <span id="close">&times;</span>
-        <p>
-          To filter by data center, add params to URL like
-          <a href="/?dcs=na35,na15">this</a> or <a href="/?dcs=na35&amp;view=day">this</a>.
-        </p>
+    <div id="helpWindow" class="window">
+      <div id="helpContent" class="windowContent">
+        <span id="helpClose" class="close">&times;</span>
         <p>Coded by Scott MacWatters. Contact me at code@macwatters.com</p>
+        <p>Dotted lines represent predictions based on existing trend data.</p>
+        <p>This tool works by running a deploy and tooling asynchronous API request agianst Salesforce every 10 minutes.</p>
         <p>The files that are deployed and tested through this tool can be found
           <a href="https://github.com/ScottMacWatters/sfdc-verify/tree/master/sfdc/res">on Github.</a></p>
+        <p>The API for this tool is publically available and documentation can be found <a href="https://github.com/ScottMacWatters/sfdc-verify/">here.</a></p>
+      </div>
+    </div>
+    <div id="filterWindow" class="window">
+      <div id="filterContent" class="windowContent">
+        <span id="filterClose" class="close">&times;</span>
+        <div id="filterPanel"></div>
       </div>
     </div>
   </body>

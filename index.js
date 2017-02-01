@@ -133,9 +133,9 @@ expr.get('/raw/', function(req,res){
   }
 
   //Include predictions. current default is false
-  var includePredictions = false;
-  if(req.query.predictions){
-    includePredictions = true;
+  var includePredictions = true;
+  if(req.query.predictions === 'false' || req.query.predictions === false){
+    includePredictions = false;
   }
 
   timePeriod = timePeriod * 1000 * 60 * 60; //convert to MS

@@ -2,6 +2,7 @@ body {
   font-family: Arial, sans-serif;
   margin: 0px;
   background-color: #d8dde6;
+  min-width: 720px;
 }
 
 #header {
@@ -32,16 +33,63 @@ h1 {
 }
 
 #help {
-  padding: 15px 40px 15px 10px;
-  text-align: right;
-  width: 35%;
-  float: left;
+  padding: 15px 20px 15px 20px;
+  text-align: center;
+  width: 30px;
+  height: 40px;
+  float: right;
+  border-left: 1px solid #435a7a;
 }
+
 #help:hover,
 #help:focus {
     text-decoration: none;
     cursor: pointer;
 }
+
+#filter {
+  width: 30px;
+  padding: 15px 20px 15px 20px;
+  float: right;
+  border-left: 1px solid #435a7a;
+  height: 40px;
+}
+
+#filter svg {
+  margin: 8px 0px 8px 0px;
+}
+
+#filter path{
+  fill: white;
+  stroke: white;
+}
+
+.viewOptions, .dcList, .additionalFields {
+  display:flex;
+  flex-direction: row;
+  flex-flow: nowrap;
+  padding: 5px;
+  width: 80%;
+  border: 1px solid #dbe6ed;
+  border-radius: 5px;
+  margin: 5px;
+}
+
+.viewOption {
+  margin-left: 10px;
+  margin-top: 1px;
+}
+
+.additionalField {
+  margin-left: 10px;
+  margin-right: 20px;
+  width: 20px;
+}
+
+.dcs {
+  margin-left: 10px;
+}
+
 
 .datacenter {
   margin: 10px;
@@ -132,7 +180,7 @@ h1 {
   background-color: #c23934
 }
 
-#helpWindow {
+.window {
     display: none;
     position: fixed;
     z-index: 1;
@@ -145,7 +193,7 @@ h1 {
     background-color: rgba(0,0,0,0.4);
 }
 
-#helpContent {
+.windowContent {
     background-color: #fefefe;
     margin: 15% auto;
     padding: 20px;
@@ -153,25 +201,25 @@ h1 {
     width: 80%;
 }
 
-#close {
+.close {
     color: #aaa;
     float: right;
     font-size: 28px;
     font-weight: bold;
 }
 
-#close:hover,
-#close:focus {
+.close:hover,
+.close:focus {
     color: black;
     text-decoration: none;
     cursor: pointer;
 }
 
-svg {
+.statGraph svg {
   padding: 5px 40px 5px 40px;
 }
 
-path {
+path.statGraph {
   stroke-width: 1;
   fill: none;
 }
