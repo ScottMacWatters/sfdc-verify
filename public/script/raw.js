@@ -151,6 +151,11 @@ function drawgraph(dc, datas){
         .y(function(d,i){
           return y(y_dim_accessor(d));
         })
+
+      if(isPrediction(type)){
+        line.curve(d3.curveMonotoneX);
+      }
+
       lines[type] = line;
     }
 
