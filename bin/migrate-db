@@ -1,5 +1,11 @@
 #!/usr/bin/env node
 
+/**
+  * This script was used to transition from Firebase to MongoDb
+  */
+
+/*
+
 var firebase = require('../db/data-access-firebase');
 var mongo = require('../db/data-access-mongo');
 
@@ -118,3 +124,5 @@ setInterval(status,60 * 1000);
 copyPredictions();
 copyTestTimes();
 copyDeployTimes();
+
+*/

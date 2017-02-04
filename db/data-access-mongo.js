@@ -15,7 +15,6 @@
           console.log(err);
           return callback(null,err);
         }
-        console.log('mongodb connected');
         _db = mdb;
         return callback(_db.collection(cName));
       });
