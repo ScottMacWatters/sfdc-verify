@@ -80,3 +80,5 @@ Temporary Items
 
 firebase_config.sh
 firebase_config_undo.sh
+config.sh
+config_undo.sh

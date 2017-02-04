@@ -6,7 +6,11 @@ function populate(stats){
   var output = document.getElementById('output');
   loading.style.display = 'block';
   output.innerHTML = '';
-  for(var dc in stats) {
+
+  var sortedDc = Object.keys(stats).sort();
+
+  for(var i in sortedDc) {
+    var dc = sortedDc[i];
 
     var dcName = newDiv('dcName');
     dcName.appendChild(newText(dc));

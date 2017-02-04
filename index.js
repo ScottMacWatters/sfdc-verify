@@ -2,7 +2,7 @@ var util = require('./summary-utils.js');
 var putil = require('./predictions-utils.js');
 var express = require('express');
 var bodyParser = require('body-parser');
-var db = require('./data-access.js');
+var db = require('./db/data-access.js');
 var expr = express();
 expr.use(bodyParser.json());
 

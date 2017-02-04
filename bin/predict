@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var db = require('../data-access.js');
+var db = require('../db/data-access.js');
 var util = require('../summary-utils.js');
 
 

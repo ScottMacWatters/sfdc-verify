@@ -1,0 +1,120 @@
+#!/usr/bin/env node
+
+var firebase = require('../db/data-access-firebase');
+var mongo = require('../db/data-access-mongo');
+
+function compareResults(functionName, args, compareLevels){
+  var dbs = { firebase: firebase, mongo: mongo};
+
+  if(!compareLevels) compareLevels = 1;
+
+  var comparison = {};
+
+  var compare = function(){
+    if(Object.keys(comparison).length === 2){
+      var mongoCount = getAllChildCount(comparison.mongo,compareLevels);
+      var firebaseCount = getAllChildCount(comparison.firebase,compareLevels);
+      if(mongoCount !== firebaseCount) {
+        console.log('\n\n\t',functionName,args);
+        console.log('\t','Mongo:',getAllChildCount(comparison.mongo,compareLevels));
+        console.log('\t','Firebase:',getAllChildCount(comparison.firebase,compareLevels));
+      }
+    }
+  };
+
+  if(args === null || args === undefined) args = [];
+  Object.keys(dbs).forEach(function(dbName){
+    var dbArgs = args.slice();
+    dbArgs.push(function(result){
+      comparison[dbName] = result;
+      compare();
+    });
+    try{
+      dbs[dbName][functionName].apply(null,dbArgs);
+    }
+    catch(err){
+      console.log(dbName,err);
+    }
+  });
+}
+
+function getAllChildCount(obj, levels){
+  if(levels === 0){
+    return 0;
+  }
+  else if(!obj){
+    return obj;
+  }
+  var count = 0;
+  for(var k in obj){
+    count += 1 + getAllChildCount(obj[k], levels-1);
+  }
+  return count;
+}
+
+var status = function(){
+  console.log('-----');
+  compareResults('getLogins',null,2);
+  compareResults('getDeployTimes',null,2);
+  compareResults('getDeployTimesForDatacenterForDates',['na35',new Date().getTime() - 1000 * 60 * 60, new Date().getTime()],2);
+  compareResults('getDeployTimesForDatacenter',['na35'],2);
+  compareResults('getDataCenters',null,2);
+  compareResults('getDeployRequests',['na35'],2);
+  compareResults('getTestRequests',['na35'],2);
+  compareResults('getTestTimes',null,2);
+  compareResults('getTestTimesForDatacenterForDates',['na35',new Date().getTime() - 1000 * 60 * 60, new Date().getTime()],2);
+  compareResults('getTestTimesForDatacenter',['na35'],2);
+  compareResults('getPredictionTimesForDatacenter',['na35'],2);
+}
+
+
+
+function copyPredictions(){
+  mongo.getDataCenters(function(dcs){
+    dcs.forEach(function(dc){
+      firebase.getPredictionTimesForDatacenter(dc, function(times){
+        var predictions = {};
+        predictions[dc] = times;
+        mongo.savePredictionTimes(predictions);
+      })
+    });
+  });
+}
+
+function copyTestTimes(){
+  copyBatchedByTimes('getTestTimesForDatacenterForDates','saveTestTime');
+}
+
+function copyDeployTimes(){
+  copyBatchedByTimes('getDeployTimesForDatacenterForDates','saveDeployTime');
+}
+
+const WEEK = 7 * 24 * 60 * 60 * 1000;
+var oldestDate = new Date('2016-12-01').getTime(); //A few weeks before the data starts because I don't want to look for the exact time.
+var newestDate = new Date().getTime() + WEEK;
+
+function copyBatchedByTimes(getMethodName, setMethodName){
+  mongo.getDataCenters(function(dcs){
+    dcs.forEach(function(dc){
+      for(var i = oldestDate; i < newestDate; i += WEEK){
+        var next = i + WEEK;
+        firebase[getMethodName].apply(null,[dc, i, next, function(times){
+          if(times){
+            for(var k in times){
+              mongo[setMethodName].apply(null,[dc,times[k]]);
+            }
+          }
+        }]);
+      }
+    });
+  });
+};
+
+
+
+
+status();
+setInterval(status,60 * 1000);
+copyPredictions();
+copyTestTimes();
+copyDeployTimes();

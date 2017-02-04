@@ -15,7 +15,8 @@
     "sfdc",
     "deploy",
     "apex",
-    "firebase"
+    "firebase",
+    "mongo"
   ],
   "author": "Scott MacWatters",
   "license": "ISC",
@@ -23,6 +24,7 @@
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "firebase-admin": "^4.0.4",
+    "mongodb": "^2.2.22",
     "soap": "^0.18.0"
   }
 }
