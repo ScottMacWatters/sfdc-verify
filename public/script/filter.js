@@ -168,9 +168,7 @@ function getUrlParamsFromFilter(){
 
       if(isNaN(past)){
         past = 0;
-        console.log(opts);
         opts.viewOption.pastRollingHours = 0;
-        console.log(opts);
         saveFilterOptions(opts);
       }
       if(isNaN(future)){
@@ -219,7 +217,7 @@ function getMidnight(date){
 
 function getEndOfWeek(){
   var today = new Date();
-  var toAdd = 6 - today.getDay();
+  var toAdd = 7 - today.getDay();
   var n = new Date(new Date().getTime() + (1000 * 60 * 60 * 24 * toAdd));
   return getMidnight(n);
 }
