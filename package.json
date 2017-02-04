@@ -7,23 +7,24 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "tooling": "bin/tooling",
-    "deploy": "bin/deploy"
+    "deploy": "bin/deploy",
+    "predict": "bin/predict"
   },
   "keywords": [
     "salesforce",
     "force",
     "sfdc",
+    "soap",
     "deploy",
     "apex",
-    "firebase",
-    "mongo"
+    "mongo",
+    "mongodb"
   ],
   "author": "Scott MacWatters",
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
-    "firebase-admin": "^4.0.4",
     "mongodb": "^2.2.22",
     "soap": "^0.18.0"
   }
