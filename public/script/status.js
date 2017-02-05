@@ -19,7 +19,11 @@ function populate(stats){
     datacenter.appendChild(dcName);
 
     var statsDiv = newDiv('stats');
-    for(var statType in stats[dc]){
+
+    var sortedStats = Object.keys(stats[dc]).sort();
+    
+    for(var i in sortedStats){
+      var statType = sortedStats[i];
       var statSectionDiv = newDiv('statSection');
       var statSectionNameDiv = newDiv('statSectionName');
       var statSectionNameText = newText(statType);
