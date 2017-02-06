@@ -3,6 +3,10 @@ const HOUR = 1000 * 60 * 60;
 
 var viewOptions = [
   {
+    optionName: 'Month',
+    optionId: 'month'
+  },
+  {
     optionName: 'Week',
     optionId: 'week'
   },
@@ -187,6 +191,9 @@ function getUrlParamsFromFilter(){
     else if(opts.viewOption.optionId === 'week'){
       ret += getViewTypeUrlParams('week');
     }
+    else if(opts.viewOption.optionId === 'month'){
+      ret += getViewTypeUrlParams('month');
+    }
     //default case will be 'day' view.
     else {
       ret += getViewTypeUrlParams('day');
@@ -197,6 +204,9 @@ function getUrlParamsFromFilter(){
 }
 
 function getViewTypeUrlParams(viewType){
+  if(viewType && viewType === 'month'){
+    return '&endDateTime=' + getEndOfMonth() + '&timePeriod=' + getDaysInMonth() * 24;
+  }
   if(viewType && viewType === 'day'){
     return '&endDateTime=' + getTomorrowDate() + '&timePeriod=24';
   }
@@ -204,6 +214,16 @@ function getViewTypeUrlParams(viewType){
     return '&endDateTime=' + getEndOfWeek() + '&timePeriod=' + (24 * 7);
   }
   return '';
+}
+
+function getEndOfMonth(){
+  var now = new Date();
+  return new Date(now.getFullYear(), now.getMonth()+1, 1).getTime();
+}
+
+function getDaysInMonth(){
+  var now = new Date();
+  return new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
 }
 
 function getTomorrowDate(){
