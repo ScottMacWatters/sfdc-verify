@@ -1,6 +1,6 @@
 {
   "name": "sfdc_but_verify",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Finds the current deploy time for SFDC on various data centers",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,11 @@
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "mongodb": "^2.2.22",
+    "sfdc-verify-tools": "^1.0.8",
     "soap": "^0.18.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ScottMacWatters/sfdc-verify.git"
   }
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var db = require('../db/data-access.js');
+var db = require('sfdc-verify-tools').db;
 var util = require('../summary-utils.js');
 
 

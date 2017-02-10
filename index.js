@@ -1,8 +1,10 @@
+var tools = require('sfdc-verify-tools');
+
 var util = require('./summary-utils.js');
 var putil = require('./predictions-utils.js');
 var express = require('express');
 var bodyParser = require('body-parser');
-var db = require('./db/data-access.js');
+var db = tools.db;
 var expr = express();
 expr.use(bodyParser.json());
 
