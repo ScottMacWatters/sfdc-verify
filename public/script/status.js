@@ -1,7 +1,5 @@
 function populate(stats){
 
-  console.log('loading...');
-
   var loading = document.getElementById('loading');
   var output = document.getElementById('output');
   loading.style.display = 'block';
@@ -21,7 +19,7 @@ function populate(stats){
     var statsDiv = newDiv('stats');
 
     var sortedStats = Object.keys(stats[dc]).sort();
-    
+
     for(var i in sortedStats){
       var statType = sortedStats[i];
       var statSectionDiv = newDiv('statSection');
@@ -67,6 +65,7 @@ function newText(text){
 }
 
 function getSummary(){
+  console.log('loading...');
   var request = new XMLHttpRequest();
   request.overrideMimeType('application/json');
   request.onreadystatechange = function() {

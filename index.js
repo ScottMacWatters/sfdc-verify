@@ -20,6 +20,14 @@ for(var i in ports){
   });
 }
 
+expr.get('/dcs/', function(req, res){
+  db.getDataCentersVerbose(function(dcs){
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify(dcs));
+    req.next();
+  });
+});
+
 expr.get('/summary/', function(req,res){
 
   var dataCenters;

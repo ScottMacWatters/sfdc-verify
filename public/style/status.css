@@ -97,6 +97,11 @@ h1 {
   border-radius: 10px;
 }
 
+.dataSource {
+  float:right;
+  color: #d8dde6;
+}
+
 .dcName {
   padding: 5px 15px 0px 45px;
   border: 1px solid #d7dfe6;
