@@ -55,15 +55,15 @@ expr.get('/summary/', function(req,res){
     var M = util.METRIC;
 
     dcs.forEach(function(dc){
-      console.log(dc);
       if(dataCenters && !dataCenters.includes(dc)){
         completeQueries+=2;
         return;
       }
-      console.log(dc, 'Summary generating');
       db.getDeployTimesForDatacenterForDates(dc, prev, endDate.getTime(), function(times){
         //If less than 20 data points, skip this datacenter until it gets more data.
         if(Object.keys(times).length < 20){
+          completeQueries++;
+          checkCompleteAndSendResult(output,completeQueries,totalQueries);
           return;
         }
 
@@ -86,6 +86,8 @@ expr.get('/summary/', function(req,res){
       db.getTestTimesForDatacenterForDates(dc, prev, endDate.getTime(), function(times){
         //If less than 20 data points, skip this datacenter until it gets more data.
         if(Object.keys(times).length < 20){
+          completeQueries++;
+          checkCompleteAndSendResult(output,completeQueries,totalQueries);
           return;
         }
 
