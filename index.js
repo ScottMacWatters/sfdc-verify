@@ -69,6 +69,8 @@ expr.get('/summary/', function(req,res){
           output[dc] = {};
         }
 
+        console.log('Deploy Summary for ',dc);
+
         output[dc]['Deploy Queue Time'] = [
           util.summarize(times,'Recent',T.HOUR,O.RECENT,M.QUEUED, endDate),
           util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.QUEUED, endDate),
@@ -78,8 +80,12 @@ expr.get('/summary/', function(req,res){
           util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.QUEUED, endDate)
         ];
         completeQueries++;
+
+        console.log('Summary:', output[dc]['Deploy Queue Time']);
+
         checkCompleteAndSendResult(output,completeQueries,totalQueries);
       });
+
 
       db.getTestTimesForDatacenterForDates(dc, prev, endDate.getTime(), function(times){
         //If less than 20 data points, skip this datacenter until it gets more data.
@@ -91,6 +97,8 @@ expr.get('/summary/', function(req,res){
           output[dc] = {};
         }
 
+        console.log('Test Summary for ',dc);
+
         output[dc]['Async Test Execution Time'] = [
           util.summarize(times,'Recent',T.HOUR,O.RECENT,M.EXECUTION, endDate),
           util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.EXECUTION, endDate),
@@ -100,6 +108,7 @@ expr.get('/summary/', function(req,res){
           util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.EXECUTION, endDate)
         ];
         completeQueries++;
+        console.log('Summary:', output[dc]['Async Test Execution Time']);
         checkCompleteAndSendResult(output,completeQueries,totalQueries);
       });
     });
