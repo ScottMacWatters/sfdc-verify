@@ -31,7 +31,7 @@ var viewOptions = [
 ];
 
 //todo: Make this update from server.
-var dcList = ['eu11','na14','na15','na35'];
+var dcList = ['eu11','na14','na15','na35','na40'];
 
 function populateFilterOptionsPanel(){
   var panel = document.getElementById('filterPanel');
