@@ -30,10 +30,10 @@ var viewOptions = [
   }
 ];
 
-//todo: Make this update from server.
-var dcList = ['eu11','na14','na15','na35','na40'];
+var dcList = [];
 
 function populateFilterOptionsPanel(){
+  getDcList();
   var panel = document.getElementById('filterPanel');
   var opts = getFilterOptions();
 
@@ -265,4 +265,38 @@ function getFilterOptions(){
 
 function clearFilterOptions(){
   localStorage.removeItem(FILTER_OPTIONS_LOCAL_STORAGE_KEY);
+}
+
+
+function getDcList(){
+  if(dcList.length === 0) {
+    loadDcs(function(dcs){
+      var list = [];
+      dcs.forEach(function(dc){
+        list.push(dc.name);
+      });
+      dcList = list;
+      populateFilterOptionsPanel();
+    });
+  }
+}
+
+function loadDcs(callback){
+  var request = new XMLHttpRequest();
+  request.overrideMimeType('application/json');
+  request.onreadystatechange = function() {
+    if (request.readyState != 4) return;
+    if (request.status != 200) {
+      console.log("ERROR in /dcs");
+      var responseBody = request.responseText;
+      var result = JSON.parse(responseBody);
+      console.log(result.error);
+      return;
+    }
+    var responseBody = request.responseText;
+    var result = JSON.parse(responseBody);
+    callback(result);
+  }
+  request.open('GET', '/dcs', true);
+  request.send();
 }
