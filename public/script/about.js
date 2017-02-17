@@ -135,6 +135,7 @@ function getStatsFromRaw(rawData){
   var output = [];
   output.push(count(rawData));
   output.push(pastHour(rawData));
+  output.push(maxGap(rawData));
 
   return output;
 }
@@ -162,6 +163,44 @@ function pastHour(rawData){
   output.units = 'Executions'
   //5 or 6 executions are fine. 4 is medium 3 is bad.
   output.status = getStatus(output.value, 4, 3);
+
+  return output;
+}
+
+function maxGap(rawData){
+  var arr = [];
+  Object.keys(rawData).forEach(function(key){
+    arr.push(rawData[key]);
+  });
+
+  arr.sort(function(a,b){
+    return a.createdDate - b.createdDate;
+  });
+
+  var gap = 0;
+  for(var i = 1; i < arr.length; i++){
+    var thisGap = arr[i].createdDate - arr[i-1].createdDate;
+    if(thisGap > gap){
+      gap = thisGap;
+    }
+  }
+
+  var output = {};
+  output.value = gap / 1000;
+  output.name = 'Max Gap';
+  output.units = 'Seconds';
+  //getStatus tries to maximize, so we make these negitive.
+  //Any gap less than 15 minutes is fine, more than 30 minutes is bad.
+  output.status = getStatus((-1 * output.value), -15 * 60, -30 * 60);
+  //Convert units if necessary.
+  if(output.value > (60 * 3)){
+    output.value = Math.round(output.value / 60);
+    output.units = 'Minutes';
+  }
+  if(output.units == 'Minutes' && output.value > (60 * 3)){
+    output.value = Math.round(output.value / 60);
+    output.units = 'Hours';
+  }
 
   return output;
 }
