@@ -1,15 +1,19 @@
 var colors = [
   '#4682b4',
   'brown',
+  'black',
   '#4682b4',
-  'brown'
+  'brown',
+  'black'
 ];
 
 var typeMetric = {
   "Apex Test Execution": "executionSeconds",
-  "Deploy Queue": "queuedSeconds",
+  "Metadata Deploy Queue": "queuedSeconds",
   "Predicted Apex Test Execution": "executionSeconds",
-  "Predicted Deploy Queue": "queuedSeconds"
+  "Predicted Metadata Deploy Queue": "queuedSeconds",
+  "Tooling Deploy Execution": "executionSeconds",
+  "Predicted Tooling Deploy Execution": "executionSeconds"
 };
 
 var typeInfo = {
@@ -19,11 +23,17 @@ var typeInfo = {
     class: 'statGraph',
     predictClass: 'statGraph predict test'
   },
-  "Deploy Queue": {
+  "Metadata Deploy Queue": {
     metric: "queuedSeconds",
     color: '#4682b4',
     class: 'statGraph',
     predictClass: 'statGraph predict deploy'
+  },
+  "Tooling Deploy Execution": {
+    metric: "executionSeconds",
+    color: 'black',
+    class: 'statGraph',
+    predictClass: 'statGraph predict toolingDeploy'
   }
 }
 
@@ -74,6 +84,7 @@ function getArraysFromRaw(rawJson){
       }
     }
   }
+
   return output;
 }
 
@@ -227,21 +238,30 @@ function drawgraph(dc, datas){
       .attr('transform','translate(10,0)');
 
 
-    var legendWidth = (Object.keys(lines).length > 2) ? 135 : 187;
+    var legendWidth = (Object.keys(lines).length > 3) ? 160 : 220;
+    var legendHeightMod = 0;
+    for(type in datas){
+      if(!isPrediction(type)) legendHeightMod ++;
+    }
 
     legend.append('rect')
       .attr('fill','#f4f6f9')
       .attr('stroke','#d7dfe6')
       .attr('stroke-width',1)
       .attr('width',legendWidth)
-      .attr('height',18 * Object.keys(typeInfo).length)
+      .attr('height',18 * legendHeightMod)
       .attr('x',-5)
       .attr('y',-5);
 
     var i = 0;
-    for(var type in lines){
+
+    var orderedTypes = Object.keys(lines).sort();
+
+    for(var ind in orderedTypes){
+      var type = orderedTypes[ind];
+
       var t = getTypeInfo(type);
-      if((Object.keys(lines).length > 2) && isPrediction(type)) continue;
+      if((Object.keys(lines).length > 3) && isPrediction(type)) continue;
 
       var g = legend.append('g');
 

@@ -2,7 +2,7 @@
 
   var predictionTypes = {
     deploy: {
-      name: 'Predicted Deploy Queue',
+      name: 'Predicted Metadata Deploy Queue',
       metric: 'queuedSeconds',
       operation: 'avg',
       prefix: 'deploy'
@@ -12,6 +12,12 @@
       metric: 'executionSeconds',
       operation: 'avg',
       prefix: 'test'
+    },
+    toolingDeploy: {
+      name: 'Predicted Tooling Deploy Execution',
+      metric: 'executionSeconds',
+      operation: 'avg',
+      prefix: 'tooling-deploy'
     }
   };
   const HOUR = 1000 * 60 * 60;

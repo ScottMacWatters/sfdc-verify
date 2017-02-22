@@ -54,8 +54,10 @@ expr.get('/summary/', function(req,res){
   db.getDataCenters(function(dcs){
     var output = {};
 
+    //tooling deploy, metadata deploy, tooling testing
+    var metricsCount = 3;
     var dcCount = dcs.length;
-    var totalQueries = dcs.length * 2; //deploy and test.
+    var totalQueries = dcs.length * metricsCount;
     var completeQueries = 0;
 
     var T = util.TIME;
@@ -64,56 +66,42 @@ expr.get('/summary/', function(req,res){
 
     dcs.forEach(function(dc){
       if(dataCenters && !dataCenters.includes(dc)){
-        completeQueries+=2;
+        completeQueries+=metricsCount;
         return;
       }
-      db.getDeployTimesForDatacenterForDates(dc, prev, endDate.getTime(), function(times){
-        //If less than 20 data points, skip this datacenter until it gets more data.
-        if(Object.keys(times).length < 20){
+
+      getTimesAndSummarize(db.getDeployTimesForDatacenterForDates, 'Metadata Deploy Queue Time', M.QUEUED, dc, prev, endDate);
+
+      getTimesAndSummarize(db.getTestTimesForDatacenterForDates, 'Async Test Execution Time', M.EXECUTION, dc, prev, endDate);
+
+      getTimesAndSummarize(db.getToolingDeployTimesForDatacenterForDates, 'Tooling Deploy Execution Time', M.EXECUTION, dc, prev, endDate);
+
+
+      function getTimesAndSummarize(queryFunction, name, metric, dc, start, end){
+        queryFunction(dc, start, end.getTime(), function(times){
+          if(Object.keys(times).length < 20){
+            completeQueries++;
+            checkCompleteAndSendResult(output,completeQueries,totalQueries);
+            return;
+          }
+
+          if(!output[dc]){
+            output[dc] = {};
+          }
+
+          output[dc][name] = [
+              util.summarize(times,'Recent',T.HOUR,O.RECENT, metric, end),
+              util.summarize(times,'Hourly Max',T.HOUR,O.MAX, metric, end),
+              util.summarize(times,'Hourly Average',T.HOUR,O.AVG, metric, end),
+              util.summarize(times,'Daily Max',T.DAY,O.MAX, metric, end),
+              util.summarize(times,'Daily Median',T.DAY,O.MED, metric, end),
+              util.summarize(times,'Weekly Max',T.WEEK,O.MAX, metric, end)
+          ];
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries,totalQueries);
-          return;
-        }
+        });
+      }
 
-        if(!output[dc]){
-          output[dc] = {};
-        }
-
-        output[dc]['Deploy Queue Time'] = [
-          util.summarize(times,'Recent',T.HOUR,O.RECENT,M.QUEUED, endDate),
-          util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.QUEUED, endDate),
-          util.summarize(times,'Hourly Average',T.HOUR,O.AVG,M.QUEUED, endDate),
-          util.summarize(times,'Daily Max',T.DAY,O.MAX,M.QUEUED, endDate),
-          util.summarize(times,'Daily Median',T.DAY,O.MED,M.QUEUED, endDate),
-          util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.QUEUED, endDate)
-        ];
-        completeQueries++;
-        checkCompleteAndSendResult(output,completeQueries,totalQueries);
-      });
-
-      db.getTestTimesForDatacenterForDates(dc, prev, endDate.getTime(), function(times){
-        //If less than 20 data points, skip this datacenter until it gets more data.
-        if(Object.keys(times).length < 20){
-          completeQueries++;
-          checkCompleteAndSendResult(output,completeQueries,totalQueries);
-          return;
-        }
-
-        if(!output[dc]){
-          output[dc] = {};
-        }
-
-        output[dc]['Async Test Execution Time'] = [
-          util.summarize(times,'Recent',T.HOUR,O.RECENT,M.EXECUTION, endDate),
-          util.summarize(times,'Hourly Max',T.HOUR,O.MAX,M.EXECUTION, endDate),
-          util.summarize(times,'Hourly Average',T.HOUR,O.AVG,M.EXECUTION, endDate),
-          util.summarize(times,'Daily Max',T.DAY,O.MAX,M.EXECUTION, endDate),
-          util.summarize(times,'Daily Median',T.DAY,O.MED,M.EXECUTION, endDate),
-          util.summarize(times,'Weekly Max',T.WEEK,O.MAX,M.EXECUTION, endDate)
-        ];
-        completeQueries++;
-        checkCompleteAndSendResult(output,completeQueries,totalQueries);
-      });
     });
   });
 
@@ -160,21 +148,22 @@ expr.get('/raw/', function(req,res){
 
     var output = {};
     var dcCount = dcs.length;
-    var totalQueries = dcs.length * 3; //deploy and test.
+    var metricCount = 4; //MD Deploy, T Deploy, Test, Predictions
+    var totalQueries = dcs.length * metricCount;
     var completeQueries = 0;
 
     for(var i in dcs){
       var dc = dcs[i];
       (function(dc){
         if(dataCenters && !dataCenters.includes(dc)){
-          completeQueries += 3;
+          completeQueries += metricCount;
           return;
         }
 
         output[dc] = {};
 
         db.getDeployTimesForDatacenterForDates(dc, prev, endDate, function(times){
-          output[dc]['Deploy Queue'] = times;
+          output[dc]['Metadata Deploy Queue'] = times;
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries, totalQueries);
         });
@@ -183,6 +172,12 @@ expr.get('/raw/', function(req,res){
           output[dc]['Apex Test Execution'] = times;
           completeQueries++;
           checkCompleteAndSendResult(output,completeQueries,totalQueries);
+        })
+
+        db.getToolingDeployTimesForDatacenterForDates(dc, prev, endDate, function(times){
+          output[dc]['Tooling Deploy Execution'] = times;
+          completeQueries++;
+          checkCompleteAndSendResult(output, completeQueries,totalQueries);
         })
 
         var predictionStart = new Date().getTime();
