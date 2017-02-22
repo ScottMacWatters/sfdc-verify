@@ -4,7 +4,7 @@
   "description": "Finds the current deploy time for SFDC on various data centers",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "export NAMESPACE=\"-dev\" && bin/deploy && bin/tooling && bin/tooling-deploy && bin/predict && exit 0",
     "start": "node index.js",
     "tooling": "bin/tooling",
     "deploy": "bin/deploy",
@@ -26,7 +26,7 @@
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "mongodb": "^2.2.22",
-    "sfdc-verify-tools": "^1.1.2",
+    "sfdc-verify-tools": "^1.6.7",
     "soap": "^0.18.0"
   },
   "repository": {

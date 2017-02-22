@@ -26,6 +26,12 @@ var predictionTypes = {
     metric: M.EXECUTION,
     prefix: "test_",
     operations: [O.AVG, O.MAX, O.MED]
+  },
+  toolingDeploy: {
+    query: db.getToolingDeployTimesForDatacenterForDates,
+    metric: M.EXECUTION,
+    prefix: "tooling_deploy_",
+    operations: [O.AVG, O.MAX, O.MED]
   }
 };
 
