@@ -22,7 +22,7 @@ var typeInfo = {
   },
   "Tooling Deploy Execution": {
     metric: "executionSeconds",
-    color: 'purple',
+    color: '#e08e00',
     class: 'statGraph',
     predictClass: 'statGraph predict toolingDeploy'
   }
