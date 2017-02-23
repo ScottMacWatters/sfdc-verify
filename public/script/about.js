@@ -55,7 +55,10 @@ function loadRaw(callback){
     var result = JSON.parse(responseBody);
     callback(result);
   }
-  request.open('GET', '/raw', true);
+  var week = 24 * 60 * 60 * 1000 * 7;
+  var endDate = new Date().getTime() + week;
+  var timePeriod = 24 * 8; //Past 24 hours + one week in advance.
+  request.open('GET', '/raw?endDateTime=' + endDate + '&timePeriod=' + timePeriod, true);
   request.send();
 }
 
@@ -81,6 +84,9 @@ function displayInfo(dcs, rawData){
     var sortedStats = Object.keys(rawData[dc.name]).sort();
 
     sortedStats.forEach(function(statType){
+      if(statType.includes('Predicted')){
+        return;
+      }
 
       var statSectionDiv = newDiv('statSection');
       var statSectionNameDiv = newDiv('statSectionName');
@@ -90,7 +96,7 @@ function displayInfo(dcs, rawData){
       statSectionDiv.appendChild(statSectionNameDiv);
       statSectionDiv.appendChild(statSectionContentsDiv);
 
-      var stats = getStatsFromRaw(rawData[dc.name][statType]);
+      var stats = getStatsFromRaw(rawData[dc.name][statType],rawData[dc.name]['Predicted ' + statType]);
 
 
       for(var statIndex in stats) {
@@ -131,11 +137,12 @@ function newText(text){
   return document.createTextNode(text);
 }
 
-function getStatsFromRaw(rawData){
+function getStatsFromRaw(rawData, predictionData){
   var output = [];
   output.push(count(rawData));
   output.push(pastHour(rawData));
   output.push(maxGap(rawData));
+  output.push(predictionCount(predictionData));
 
   return output;
 }
@@ -146,8 +153,20 @@ function count(rawData){
   output.value = Object.keys(rawData).length;
   output.name = 'Today';
   output.units = 'Executions';
-  //1 deploy per hour, for 24 hours should be 144
+  //6 deploy per hour, for 24 hours should be 144
   output.status = getStatus(output.value, 134, 110);
+  return output;
+}
+
+function predictionCount(predictionData){
+  var output = {};
+
+  output.value = Object.keys(predictionData).length;
+  output.name = 'Next Week';
+  output.units = 'Predictions';
+  //1 prediction per hour for 24 hours for 7 days should be 168
+  output.status = getStatus(output.value, 140, 100);
+
   return output;
 }
 
