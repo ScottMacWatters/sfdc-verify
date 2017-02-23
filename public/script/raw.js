@@ -1,12 +1,3 @@
-var colors = [
-  '#4682b4',
-  'brown',
-  'black',
-  '#4682b4',
-  'brown',
-  'black'
-];
-
 var typeMetric = {
   "Apex Test Execution": "executionSeconds",
   "Metadata Deploy Queue": "queuedSeconds",
@@ -31,7 +22,7 @@ var typeInfo = {
   },
   "Tooling Deploy Execution": {
     metric: "executionSeconds",
-    color: 'black',
+    color: 'purple',
     class: 'statGraph',
     predictClass: 'statGraph predict toolingDeploy'
   }
