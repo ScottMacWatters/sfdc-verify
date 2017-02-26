@@ -17,7 +17,7 @@
       name: 'Predicted Tooling Deploy Execution',
       metric: 'executionSeconds',
       operation: 'avg',
-      prefix: 'tooling-deploy'
+      prefix: 'tooling_deploy'
     }
   };
   const HOUR = 1000 * 60 * 60;
